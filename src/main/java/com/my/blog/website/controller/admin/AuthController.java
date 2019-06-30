@@ -29,7 +29,7 @@ import java.io.IOException;
  * Created by BlueT on 2017/3/11.
  */
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("${server.admin.prefix}")
 @Transactional(rollbackFor = TipException.class)
 public class AuthController extends BaseController {
 
@@ -40,6 +40,9 @@ public class AuthController extends BaseController {
 
     @Resource
     private ILogService logService;
+
+    @Resource
+    private Commons commons;
 
     @GetMapping(value = "/login")
     public String login() {
@@ -101,7 +104,7 @@ public class AuthController extends BaseController {
         response.addCookie(cookie);
         try {
             //response.sendRedirect(Commons.site_url());
-            response.sendRedirect(Commons.site_login());
+            response.sendRedirect(commons.site_login());
         } catch (IOException e) {
             e.printStackTrace();
             LOGGER.error("注销失败", e);

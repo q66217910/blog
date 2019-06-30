@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  * Created by 13 on 2017/2/21.
  */
 @Controller()
-@RequestMapping("admin/page")
+@RequestMapping("${server.admin.prefix}/page")
 public class PageController extends BaseController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PageController.class);

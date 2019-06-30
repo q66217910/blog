@@ -2,6 +2,7 @@ package com.my.blog.website;
 
 import javax.sql.DataSource;
 
+import com.my.blog.website.constant.WebConst;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -49,6 +51,6 @@ public class CoreApplication extends SpringBootServletInitializer
     }
     
     public static void main(String[] args) {
-        SpringApplication.run(CoreApplication.class, args);
+        WebConst.context = SpringApplication.run(CoreApplication.class, args);
     }
 }

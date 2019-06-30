@@ -13,6 +13,7 @@ import com.my.blog.website.modal.Vo.LogVo;
 import com.my.blog.website.modal.Vo.UserVo;
 import com.my.blog.website.service.ILogService;
 import com.my.blog.website.service.IUserService;
+import com.my.blog.website.utils.Commons;
 import com.my.blog.website.utils.GsonUtils;
 import com.my.blog.website.utils.TaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,7 @@ import java.util.List;
  * Created by Administrator on 2017/3/9 009.
  */
 @Controller("adminIndexController")
-@RequestMapping("/admin")
+@RequestMapping("${server.admin.prefix}")
 @Transactional(rollbackFor = TipException.class)
 public class IndexController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexController.class);
@@ -45,6 +46,9 @@ public class IndexController extends BaseController {
 
     @Resource
     private IUserService userService;
+
+    @Resource
+    private Commons commons;
 
     /**
      * 页面跳转
@@ -82,7 +86,7 @@ public class IndexController extends BaseController {
     @GetMapping(value = "logout")
     public String logout() {
         System.out.println("index-----------logout");
-        return "admin/login";
+        return "/admin/login";
     }
 
 

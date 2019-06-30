@@ -64,16 +64,17 @@
 <script th:src="@{//cdn.bootcss.com/jquery-toggles/2.0.4/toggles.min.js}"></script>
 <script th:src="@{//cdn.bootcss.com/jquery-validate/1.15.1/jquery.validate.min.js}"></script>
 <script th:src="@{//cdn.bootcss.com/jquery-validate/1.15.1/localization/messages_zh.min.js}"></script>
-<script type="text/javascript">
+<script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
     var tale = new $.tale();
+    var adminPrefix = /*[[${commons.admin_prefix()}]]*/ "";
     // validate the comment form when it is submitted
     $('#articleForm').validate({
         submitHandler: function (form) {
             $('#content-editor').val($('#text').val());
             $("#articleForm #categories").val($('#multiple-sel').val());
             var params = $("#articleForm").serialize();
-            var url = $('#articleForm #cid').val() != '' ? '/admin/page/modify' : '/admin/page/publish';
+            var url = adminPrefix + $('#articleForm #cid').val() != '' ? '/page/modify' : '/page/publish';
 
             tale.post({
                 url:url,
@@ -84,7 +85,7 @@
                             text:'页面保存成功',
                             then: function () {
                                 setTimeout(function () {
-                                    window.location.href = '/admin/page';
+                                    window.location.href = adminPrefix + '/page';
                                 }, 500);
                             }
                         });

@@ -118,7 +118,7 @@ CREATE TABLE `t_contents` (
 LOCK TABLES `t_contents` WRITE;
 /*!40000 ALTER TABLE `t_contents` DISABLE KEYS */;
 INSERT INTO `t_contents` VALUES 
-(1,'about blog','about',1487853610,1497324440,'## Blog\r\n\r\n[Blog](https://github.com/zhisheng17/blog)  fork from [My Blog](https://github.com/ZHENFENG13/My-Blog) , 该作者是在 [Tale](https://github.com/otale/tale) 博客系统基础上进行修改的。\r\n\r\n`Tale` 使用了轻量级 mvc 框架 `Blade` 开发，默认主题使用了漂亮的 `pinghsu` 。\r\n\r\n`My-Blog` 使用的是 Docker + SpringBoot + Mybatis + thymeleaf 打造的一个个人博客模板。\r\n\r\n***\r\n\r\n[Blog](https://github.com/zhisheng17/blog)  在  [My Blog](https://github.com/ZHENFENG13/My-Blog)  的基础上去除了 Docker，采用的是 SpringBoot + Mybatis + thymeleaf  + MySQL 搭建的一个博客，其中在原来作者的基础上优化了。\r\n\r\n## 开源协议\r\n\r\n[MIT](./LICENSE)\r\n\r\n## 感谢\r\n\r\n[ZHENFENG13](https://github.com/ZHENFENG13)\r\n\r\n[otale](https://github.com/otale)\r\n',1,'page','publish',NULL,NULL,48,0,1,1,1);
+(1,'about blog','about',1487853610,1497324440,'',1,'page','publish',NULL,NULL,48,0,1,1,1);
 /*!40000 ALTER TABLE `t_contents` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -146,7 +146,7 @@ CREATE TABLE `t_logs` (
 
 LOCK TABLES `t_logs` WRITE;
 /*!40000 ALTER TABLE `t_logs` DISABLE KEYS */;
-INSERT INTO `t_logs` VALUES (1,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815277),(2,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815280),(3,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815318),(4,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815398),(5,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815482),(6,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815492),(7,'保存系统设置','{\"site_keywords\":\"Blog\",\"site_description\":\"SpringBoot+Mybatis+thymeleaf 搭建的 Java 博客系统\",\"site_title\":\"Blog\",\"site_theme\":\"default\",\"allow_install\":\"\"}',1,'0:0:0:0:0:0:0:1',1496815955),(8,'保存系统设置','{\"site_keywords\":\"Blog\",\"site_description\":\"SpringBoot+Mybatis+thymeleaf 搭建的 Java 博客系统\",\"site_title\":\"Blog\",\"site_theme\":\"default\",\"allow_install\":\"\"}',1,'0:0:0:0:0:0:0:1',1496815964),(9,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496989015),(10,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496989366),(11,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497317863),(12,'保存系统设置','{\"social_zhihu\":\"https://www.zhihu.com/people/tian-zhisheng/activities\",\"social_github\":\"https://github.com/zhisheng17\",\"social_twitter\":\"\",\"social_weibo\":\"\"}',1,'0:0:0:0:0:0:0:1',1497318696),(13,'修改个人信息','{\"uid\":1,\"email\":\"1041218129@qq.com\",\"screenName\":\"admin\"}',1,'0:0:0:0:0:0:0:1',1497319220),(14,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497319856),(15,'登录后台',NULL,1,'127.0.0.1',1497321561),(16,'登录后台',NULL,1,'127.0.0.1',1497322738),(17,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497323446),(18,'删除文章','2',1,'0:0:0:0:0:0:0:1',1497323495),(19,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497427641),(20,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497428250),(21,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497428290),(22,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497428556),(23,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497674581),(24,'修改个人信息','{\"uid\":1,\"email\":\"1041218129@qq.com\",\"screenName\":\"admin\"}',1,'0:0:0:0:0:0:0:1',1497674690),(25,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497676623),(26,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497683817),(27,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497685128),(28,'登录后台',NULL,1,'127.0.0.1',1497689032);
+INSERT INTO `t_logs` VALUES (1,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815277),(2,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815280),(3,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815318),(4,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815398),(5,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815482),(6,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496815492),(7,'保存系统设置','{\"site_keywords\":\"Blog\",\"site_description\":\"SpringBoot+Mybatis+thymeleaf 搭建的 Java 博客系统\",\"site_title\":\"Blog\",\"site_theme\":\"default\",\"allow_install\":\"\"}',1,'0:0:0:0:0:0:0:1',1496815955),(8,'保存系统设置','{\"site_keywords\":\"Blog\",\"site_description\":\"SpringBoot+Mybatis+thymeleaf 搭建的 Java 博客系统\",\"site_title\":\"Blog\",\"site_theme\":\"default\",\"allow_install\":\"\"}',1,'0:0:0:0:0:0:0:1',1496815964),(9,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496989015),(10,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1496989366),(11,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497317863),(12,'保存系统设置','',1,'0:0:0:0:0:0:0:1',1497318696),(13,'修改个人信息','',1,'0:0:0:0:0:0:0:1',1497319220),(14,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497319856),(15,'登录后台',NULL,1,'127.0.0.1',1497321561),(16,'登录后台',NULL,1,'127.0.0.1',1497322738),(17,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497323446),(18,'删除文章','2',1,'0:0:0:0:0:0:0:1',1497323495),(19,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497427641),(20,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497428250),(21,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497428290),(22,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497428556),(23,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497674581),(24,'修改个人信息','',1,'0:0:0:0:0:0:0:1',1497674690),(25,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497676623),(26,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497683817),(27,'登录后台',NULL,1,'0:0:0:0:0:0:0:1',1497685128),(28,'登录后台',NULL,1,'127.0.0.1',1497689032);
 /*!40000 ALTER TABLE `t_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +176,7 @@ CREATE TABLE `t_metas` (
 
 LOCK TABLES `t_metas` WRITE;
 /*!40000 ALTER TABLE `t_metas` DISABLE KEYS */;
-INSERT INTO `t_metas` VALUES (1,'default',NULL,'category',NULL,0,0),(6,'my github','https://github.com/zhisheng17','link','http://www.54tianzhisheng.cn/img/avatar.png',1,0),(7,'my website','http://www.54tianzhisheng.cn','link','http://www.54tianzhisheng.cn/img/avatar.png',0,0),(8,'随笔','随笔','tag',NULL,0,0),(9,'Java','Java','tag',NULL,0,0),(10,'Java','Java','category','有关Java的博客',0,0),(11,'HashMap','HashMap','tag',NULL,0,0),(12,'HashTable','HashTable','tag',NULL,0,0),(13,'HashSet','HashSet','tag',NULL,0,0),(14,'ConcurrentHashMap','ConcurrentHashMap','tag',NULL,0,0),(15,'Pyspider','Pyspider','tag',NULL,0,0),(16,'Python','Python','tag',NULL,0,0),(17,'爬虫','爬虫','tag',NULL,0,0),(19,'Python','Python','category','有关Python的博客',0,0),(20,'随笔',NULL,'category',NULL,0,0);
+INSERT INTO `t_metas` VALUES (1,'default',NULL,'category',NULL,0,0),(6,'my github','https://github.com/uetty','link','',1,0),(7,'my website','http://www.uetty.com','link','http://www.uetty.com/img/avatar.png',0,0),(8,'随笔','随笔','tag',NULL,0,0),(9,'Java','Java','tag',NULL,0,0),(10,'Java','Java','category','有关Java的博客',0,0),(11,'HashMap','HashMap','tag',NULL,0,0),(12,'HashTable','HashTable','tag',NULL,0,0),(13,'HashSet','HashSet','tag',NULL,0,0),(14,'ConcurrentHashMap','ConcurrentHashMap','tag',NULL,0,0),(15,'Pyspider','Pyspider','tag',NULL,0,0),(16,'Python','Python','tag',NULL,0,0),(17,'爬虫','爬虫','tag',NULL,0,0),(19,'Python','Python','category','有关Python的博客',0,0),(20,'随笔',NULL,'category',NULL,0,0);
 /*!40000 ALTER TABLE `t_metas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -201,7 +201,7 @@ CREATE TABLE `t_options` (
 
 LOCK TABLES `t_options` WRITE;
 /*!40000 ALTER TABLE `t_options` DISABLE KEYS */;
-INSERT INTO `t_options` VALUES ('allow_install','',''),('site_description','SpringBoot+Mybatis+thymeleaf 搭建的 Java 博客系统',NULL),('site_keywords','Blog',NULL),('site_theme','default',NULL),('site_title','Blog',''),('social_github','https://github.com/zhisheng17',NULL),('social_twitter','',NULL),('social_weibo','',NULL),('social_zhihu','https://www.zhihu.com/people/tian-zhisheng/activities',NULL);
+INSERT INTO `t_options` VALUES ('allow_install','',''),('site_description','',NULL),('site_keywords','Blog',NULL),('site_theme','default',NULL),('site_title','Blog',''),('social_github','https://github.com/uetty',NULL),('social_twitter','',NULL),('social_weibo','',NULL),('social_zhihu','',NULL);
 /*!40000 ALTER TABLE `t_options` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -259,7 +259,7 @@ CREATE TABLE `t_users` (
 
 LOCK TABLES `t_users` WRITE;
 /*!40000 ALTER TABLE `t_users` DISABLE KEYS */;
-INSERT INTO `t_users` VALUES (1,'admin','a66abb5684c45962d887564f08346e8d','1041218129@qq.com',NULL,'admin',1490756162,0,0,'visitor');
+INSERT INTO `t_users` VALUES (1,'admin','a66abb5684c45962d887564f08346e8d','',NULL,'admin',1490756162,0,0,'visitor');
 /*!40000 ALTER TABLE `t_users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

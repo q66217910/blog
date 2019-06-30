@@ -95,8 +95,10 @@
 <div th:replace="admin/footer :: footer"></div>
 <script th:src="@{//cdn.bootcss.com/jquery-validate/1.15.1/jquery.validate.min.js}"></script>
 <script th:src="@{//cdn.bootcss.com/jquery-validate/1.15.1/localization/messages_zh.min.js}"></script>
-<script type="text/javascript">
+<script th:src="@{/admin/js/md5.js}"></script>
+<script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
+    var adminPrefix = /*[[${commons.admin_prefix()}]]*/ "";
     var tale = new $.tale();
 
     /**
@@ -105,7 +107,7 @@
     function saveSetting() {
         var param = $('#user-form').serialize();
         tale.post({
-            url : '/admin/profile',
+            url : adminPrefix + '/profile',
             data: param,
             success: function (result) {
                 if(result && result.success){
@@ -119,10 +121,12 @@
 
     $('#pwd-form').validate({
         submitHandler: function (form) {
-            var params = $("#pwd-form").serialize();
+            var oldPassword = $("#pwd-form [name=oldPassword]").val();
+            var form = "oldPassword=" + oldPassword + "&password=" + md5($("#pwd-form [name=password]").val());
+
             tale.post({
-                url : '/admin/password',
-                data: params,
+                url : adminPrefix + '/password',
+                data: form,
                 success: function (result) {
                     if(result && result.success){
                         tale.alertOk('密码修改成功');

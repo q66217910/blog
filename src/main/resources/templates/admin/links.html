@@ -91,15 +91,16 @@
 <div th:replace="admin/footer :: footer"></div>
 <script src="//cdn.bootcss.com/jquery-validate/1.15.1/jquery.validate.min.js"></script>
 <script src="//cdn.bootcss.com/jquery-validate/1.15.1/localization/messages_zh.min.js"></script>
-<script type="text/javascript">
+<script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
+    var adminPrefix = /*[[${commons.admin_prefix()}]]*/ "";
     var tale = new $.tale();
 
     $('#linkForm').validate({
         submitHandler: function (form) {
             var params = $("#linkForm").serialize();
             tale.post({
-                url : '/admin/links/save',
+                url : adminPrefix + '/links/save',
                 data: params,
                 success: function (result) {
                     $('#linkForm input').val('');
@@ -135,7 +136,7 @@
             title:'确定删除该链接吗?',
             then: function () {
                 tale.post({
-                    url : '/admin/links/delete',
+                    url : adminPrefix + '/links/delete',
                     data: {mid: mid},
                     success: function (result) {
                         if(result && result.success){

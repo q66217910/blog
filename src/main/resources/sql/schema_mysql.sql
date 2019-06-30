@@ -92,15 +92,15 @@ CREATE TABLE IF NOT EXISTS `t_options`(
     PRIMARY KEY(`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO t_options (name, value, description) VALUES ('site_title', 'Tale博客系统', '');
+INSERT INTO t_options (name, value, description) VALUES ('site_title', '流风的个人博客', '');
 INSERT INTO t_options (name, value, description) VALUES ('social_weibo', '', NULL);
 INSERT INTO t_options (name, value, description) VALUES ('social_zhihu', '', NULL);
 INSERT INTO t_options (name, value, description) VALUES ('social_github', '', NULL);
 INSERT INTO t_options (name, value, description) VALUES ('social_twitter', '', NULL);
 INSERT INTO t_options (name, value, description) VALUES ('allow_install', '0', '是否允许重新安装博客');
 INSERT INTO t_options (name, value, description) VALUES ('site_theme', 'default', NULL);
-INSERT INTO t_options (name, value, description) VALUES ('site_keywords', '博客系统,Blade框架,Tale', NULL);
-INSERT INTO t_options (name, value, description) VALUES ('site_description', '博客系统,Blade框架,Tale', NULL);
+INSERT INTO t_options (name, value, description) VALUES ('site_keywords', 'uetty,流风,vincent_field', NULL);
+INSERT INTO t_options (name, value, description) VALUES ('site_description', '工作几年的IT小渣，写写笔记，分享共勉', NULL);
 
 -- 表：t_relationships
 CREATE TABLE IF NOT EXISTS `t_relationships`(
@@ -126,4 +126,4 @@ CREATE TABLE IF NOT EXISTS `t_users`(
     UNIQUE INDEX `uk_name` (`username` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `t_users` VALUES (1,'admin','a66abb5684c45962d887564f08346e8d','vincent_field@foxmail.com',NULL,'admin',1500756162,0,0,'visitor');
+INSERT INTO `t_users` VALUES (1,'vince','a387909a43869c1e0e8660c8bac4f63f','vincent_field@foxmail.com',NULL,'vince',1500756162,0,0,'visitor');

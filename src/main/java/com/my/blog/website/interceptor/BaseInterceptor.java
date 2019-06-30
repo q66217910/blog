@@ -1,12 +1,15 @@
 package com.my.blog.website.interceptor;
 
+import com.my.blog.website.modal.Vo.OptionVo;
 import com.my.blog.website.modal.Vo.UserVo;
+import com.my.blog.website.service.IOptionService;
 import com.my.blog.website.service.IUserService;
 import com.my.blog.website.utils.*;
 import com.my.blog.website.constant.WebConst;
 import com.my.blog.website.dto.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -14,6 +17,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 自定义拦截器
@@ -35,9 +41,25 @@ public class BaseInterceptor implements HandlerInterceptor {
     @Resource
     private AdminCommons adminCommons;
 
+    @Resource
+    private IOptionService optionService;
+
+    @Value("${server.admin.prefix}")
+    String adminPrefix;
+
+    public void loadOptions() {
+        if (WebConst.initConfig != null) return;
+        synchronized (WebConst.class) {
+            if (WebConst.initConfig != null) return;
+            List<OptionVo> options = optionService.getOptions();
+            WebConst.initConfig = options.stream().collect(Collectors.toMap(OptionVo::getName, OptionVo::getValue, (a, b) -> a));
+        }
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
+        loadOptions();
+
         String uri = request.getRequestURI();
 
         LOGGE.info("UserAgent: {}", request.getHeader(USER_AGENT));
@@ -57,8 +79,8 @@ public class BaseInterceptor implements HandlerInterceptor {
         if (uri.startsWith("/admin/js/") || uri.startsWith("/admin/images/") || uri.startsWith("/admin/css/")) {
         	return true;
         }
-        if (uri.startsWith("/admin") && !uri.startsWith("/admin/login") && null == user) {
-            response.sendRedirect(request.getContextPath() + "/admin/login");
+        if (uri.startsWith(adminPrefix) && !uri.startsWith(adminPrefix + "/login") && null == user) {
+            response.sendRedirect(request.getContextPath() + adminPrefix + "/login");
             return false;
         }
         //设置get请求的token

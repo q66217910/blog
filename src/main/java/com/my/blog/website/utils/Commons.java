@@ -10,8 +10,11 @@ import com.my.blog.website.dto.Types;
 import com.my.blog.website.modal.Vo.CommentVo;
 import com.my.blog.website.modal.Vo.ContentVo;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -39,7 +42,6 @@ public final class Commons {
         siteService = ss;
     }
 
-
     /**
      * 判断分页中是否有数据
      *
@@ -48,6 +50,10 @@ public final class Commons {
      */
     public static boolean is_empty(PageInfo paginator) {
         return paginator == null || (paginator.getList() == null) || (paginator.getList().size() == 0);
+    }
+
+    public static String admin_prefix () {
+        return WebConst.context.getEnvironment().getProperty("server.admin.prefix", "/admin");
     }
 
     /**
@@ -68,7 +74,7 @@ public final class Commons {
      * @return
      */
     public static String site_login() {
-        return "admin/login";
+        return admin_prefix() + "/login";
     }
 
     /**
@@ -300,7 +306,7 @@ public final class Commons {
      *
      * @return
      */
-    public static String show_thumb(ContentVo contents) {
+    public String show_thumb(ContentVo contents) {
         int cid = contents.getCid();
         int size = cid % 20;
         size = size == 0 ? 1 : size;

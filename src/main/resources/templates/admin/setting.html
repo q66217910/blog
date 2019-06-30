@@ -139,8 +139,9 @@
 </div>
 <div th:replace="admin/footer :: footer"></div>
 <script src="//cdn.bootcss.com/jquery-toggles/2.0.4/toggles.min.js"></script>
-<script type="text/javascript">
+<script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
+    var adminPrefix = /*[[${commons.admin_prefix()}]]*/ "";
     var tale = new $.tale();
 
     /**
@@ -149,7 +150,7 @@
     function saveSetting() {
         var param = $('#global-form').serialize();
         tale.post({
-            url : '/admin/setting',
+            url : adminPrefix + '/setting',
             data: param,
             success: function (result) {
                 if(result && result.success){
@@ -167,7 +168,7 @@
     function saveIndiviSetting() {
         var param = $('#indivi-form').serialize();
         tale.post({
-            url : '/admin/setting',
+            url : adminPrefix + '/setting',
             data: param,
             success: function (result) {
                 if(result && result.success){
@@ -203,7 +204,7 @@
             bk_path: $('#backup_dir').val()
         };
         tale.post({
-            url : '/admin/setting/backup',
+            url : adminPrefix + '/setting/backup',
             data: param,
             success: function (result) {
                 if(result && result.success){

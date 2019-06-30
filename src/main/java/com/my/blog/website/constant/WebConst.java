@@ -1,5 +1,7 @@
 package com.my.blog.website.constant;
 
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -17,7 +19,7 @@ public class WebConst {
      */
     public static final String INSTALL_FILE_CONF = "install.lock";
 
-    public static Map<String, String> initConfig = new HashMap<>();
+    public static Map<String, String> initConfig = null;
 
 
     public static String LOGIN_SESSION_KEY = "login_user";
@@ -63,4 +65,7 @@ public class WebConst {
      * 要过滤的ip列表
      */
     public static final Set<String> BLOCK_IPS = new HashSet<>(16);
+
+    public static ConfigurableApplicationContext context ;
+
 }

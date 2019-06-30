@@ -60,7 +60,7 @@ public class UserServiceImpl implements IUserService {
         String pwd = TaleUtils.MD5encode(username+password);
         criteria.andPasswordEqualTo(pwd);
         List<UserVo> userVos = userDao.selectByExample(example);
-        if (userVos.size()!=1) {
+        if (userVos.size() == 0) {
             throw new TipException("用户名或密码错误");
         }
         return userVos.get(0);

@@ -95,8 +95,9 @@
     </div>
 </div>
 <div th:replace="admin/footer :: footer"></div>
-<script type="text/javascript">
+<script th:inline="javascript" type="text/javascript">
     /*<![CDATA[*/
+    var adminPrefix = /*[[${commons.admin_prefix()}]]*/ "";
     var tale = new $.tale();
 
     $('#save-category-btn').click(function () {
@@ -104,7 +105,7 @@
         var mid = $('#cform #mid').val();
         if (cname && cname != '') {
             tale.post({
-                url: '/admin/category/save',
+                url: adminPrefix + '/category/save',
                 data: {mid: mid, cname: cname},
                 success: function (result) {
                     $('#cform #mid').val('');
@@ -132,7 +133,7 @@
             title: '确定删除该项吗?',
             then: function () {
                 tale.post({
-                    url: '/admin/category/delete',
+                    url: adminPrefix + '/category/delete',
                     data: {mid: mid},
                     success: function (result) {
                         if (result && result.success) {
