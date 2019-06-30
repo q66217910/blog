@@ -66,6 +66,8 @@ public class WebConst {
      */
     public static final Set<String> BLOCK_IPS = new HashSet<>(16);
 
-    public static ConfigurableApplicationContext context ;
+    public static ConfigurableApplicationContext context;
+
+    public static final String FILE_PATH_KEY = "file.path";
 
 }

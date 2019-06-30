@@ -2,7 +2,6 @@ package com.my.blog.website.utils;
 
 import com.my.blog.website.exception.TipException;
 import com.my.blog.website.constant.WebConst;
-import com.my.blog.website.controller.admin.AttachController;
 import com.my.blog.website.modal.Vo.UserVo;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
@@ -422,14 +421,14 @@ public class TaleUtils {
     }
 
     public static String getFileKey(String name) {
-        String prefix = "/upload/" + DateKit.dateFormat(new Date(), "yyyy/MM");
-        if (!new File(AttachController.CLASSPATH + prefix).exists()) {
-            new File(AttachController.CLASSPATH + prefix).mkdirs();
+        String prefix = "upload/" + DateKit.dateFormat(new Date(), "yyyy/MM");
+        if (!new File(getFilePath() + prefix).exists()) {
+            new File(getFilePath() + prefix).mkdirs();
         }
 
         name = StringUtils.trimToNull(name);
         if (name == null) {
-            return prefix + "/" + UUID.UU32() + "." + null;
+            return "/" + prefix + "/" + UUID.UU32() + "." + null;
         } else {
             name = name.replace('\\', '/');
             name = name.substring(name.lastIndexOf("/") + 1);
@@ -438,7 +437,7 @@ public class TaleUtils {
             if (index >= 0) {
                 ext = StringUtils.trimToNull(name.substring(index + 1));
             }
-            return prefix + "/" + UUID.UU32() + "." + (ext == null ? null : (ext));
+            return "/" + prefix + "/" + UUID.UU32() + "." + (ext == null ? null : (ext));
         }
     }
 
@@ -479,12 +478,7 @@ public class TaleUtils {
         return num;
     }
 
-    /**
-     * 获取保存文件的位置,jar所在目录的路径
-     *
-     * @return
-     */
-    public static String getUplodFilePath() {
+    public static String getClassPath() {
         String path = TaleUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         path = path.substring(1, path.length());
         try {
@@ -497,4 +491,34 @@ public class TaleUtils {
         File file = new File("");
         return file.getAbsolutePath() + "/";
     }
+
+    private static String FILE_PATH;
+
+    public static void setFilePath (String filePath) {
+        if (filePath != null) {
+            File file = new File(filePath);
+            if (!file.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                file.mkdirs();
+            }
+            if (!filePath.endsWith("/") && !filePath.endsWith(File.separator)) {
+                filePath += File.separator;
+            }
+        }
+        FILE_PATH = filePath;
+    }
+
+    /**
+     * 获取保存文件的位置,jar所在目录的路径
+     *
+     * @return
+     */
+    public static String getFilePath() {
+        if (FILE_PATH != null) {
+            return FILE_PATH;
+        }
+
+        return getClassPath();
+    }
+
 }

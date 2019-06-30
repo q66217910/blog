@@ -11,7 +11,6 @@ import com.my.blog.website.utils.DateKit;
 import com.my.blog.website.utils.TaleUtils;
 import com.my.blog.website.utils.backup.Backup;
 import com.my.blog.website.constant.WebConst;
-import com.my.blog.website.controller.admin.AttachController;
 import com.my.blog.website.dao.CommentVoMapper;
 import com.my.blog.website.dao.ContentVoMapper;
 import com.my.blog.website.dao.MetaVoMapper;
@@ -90,8 +89,8 @@ public class SiteServiceImpl implements ISiteService {
             if (!(new File(bk_path)).isDirectory()) {
                 throw new TipException("请输入一个存在的目录");
             }
-            String bkAttachDir = AttachController.CLASSPATH + "upload";
-            String bkThemesDir = AttachController.CLASSPATH + "templates/themes";
+            String bkAttachDir = TaleUtils.getFilePath() + "upload";
+            String bkThemesDir = TaleUtils.getClassPath() + "templates/themes";
 
             String fname = DateKit.dateFormat(new Date(), fmt) + "_" + TaleUtils.getRandomNumber(5) + ".zip";
 
@@ -106,7 +105,7 @@ public class SiteServiceImpl implements ISiteService {
         }
         if (bk_type.equals("db")) {
 
-            String bkAttachDir = AttachController.CLASSPATH + "upload/";
+            String bkAttachDir = TaleUtils.getFilePath() + "upload/";
             if (!(new File(bkAttachDir)).isDirectory()) {
                 File file = new File(bkAttachDir);
                 if (!file.exists()) {
