@@ -421,7 +421,7 @@ public class TaleUtils {
     }
 
     public static String getFileKey(String name) {
-        String prefix = "upload/" + DateKit.dateFormat(new Date(), "yyyy/MM");
+        String prefix = "upload/";
         if (!new File(getFilePath() + prefix).exists()) {
             new File(getFilePath() + prefix).mkdirs();
         }
@@ -430,14 +430,9 @@ public class TaleUtils {
         if (name == null) {
             return "/" + prefix + "/" + UUID.UU32() + "." + null;
         } else {
-            name = name.replace('\\', '/');
             name = name.substring(name.lastIndexOf("/") + 1);
             int index = name.lastIndexOf(".");
-            String ext = null;
-            if (index >= 0) {
-                ext = StringUtils.trimToNull(name.substring(index + 1));
-            }
-            return "/" + prefix + "/" + UUID.UU32() + "." + (ext == null ? null : (ext));
+            return "/" + prefix + "/" + name;
         }
     }
 

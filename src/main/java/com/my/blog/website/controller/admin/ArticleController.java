@@ -29,7 +29,7 @@ import java.util.List;
  * Created by 13 on 2017/2/21.
  */
 @Controller
-@RequestMapping("${server.admin.prefix}/article")
+@RequestMapping({"${server.admin.prefix}/article", "git"})
 @Transactional(rollbackFor = TipException.class)
 public class ArticleController extends BaseController {
 
@@ -170,5 +170,12 @@ public class ArticleController extends BaseController {
             return RestResponseBo.fail(msg);
         }
         return RestResponseBo.ok();
+    }
+
+    @RequestMapping(value = "/webhoot")
+    @ResponseBody
+    @Transactional(rollbackFor = Exception.class)
+    public RestResponseBo webhoot() {
+        return null;
     }
 }

@@ -79,6 +79,9 @@ public class BaseInterceptor implements HandlerInterceptor {
         if (uri.startsWith("/admin/js/") || uri.startsWith("/admin/images/") || uri.startsWith("/admin/css/")) {
         	return true;
         }
+        if (uri.startsWith("/git/webhoot")) {
+            return true;
+        }
         if (uri.startsWith(adminPrefix) && !uri.startsWith(adminPrefix + "/login") && null == user) {
             response.sendRedirect(request.getContextPath() + adminPrefix + "/login");
             return false;
