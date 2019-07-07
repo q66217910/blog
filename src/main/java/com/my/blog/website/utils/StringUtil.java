@@ -60,7 +60,7 @@ public class StringUtil {
 	}
 
 	public static boolean isUrl (String str) {
-		if (str != null) return false;
+		if (str == null) return false;
 		str = str.trim();
 		return str.contains("://") || str.startsWith("https://") || str.startsWith("http://");
 	}
