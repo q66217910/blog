@@ -71,7 +71,6 @@ public class ZipUtils {
     }
 
     public static void unZip(File srcFile, String destDirPath) throws RuntimeException {
-        long start = System.currentTimeMillis();
         // 判断源文件是否存在
         if (!srcFile.exists()) {
             throw new RuntimeException(srcFile.getPath() + "所指文件不存在");
@@ -83,7 +82,6 @@ public class ZipUtils {
             Enumeration<?> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
-                System.out.println("解压" + entry.getName());
                 // 如果是文件夹，就创建个文件夹
                 if (entry.isDirectory()) {
                     String dirPath = destDirPath + "/" + entry.getName();
@@ -110,8 +108,6 @@ public class ZipUtils {
                     is.close();
                 }
             }
-            long end = System.currentTimeMillis();
-            System.out.println("解压完成，耗时：" + (end - start) +" ms");
         } catch (Exception e) {
             throw new RuntimeException("unzip error from ZipUtils", e);
         } finally {

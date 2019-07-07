@@ -14,6 +14,8 @@
     <result column="categories" jdbcType="VARCHAR" property="categories" />
     <result column="hits" jdbcType="INTEGER" property="hits" />
     <result column="comments_num" jdbcType="INTEGER" property="commentsNum" />
+    <result column="blog_number" jdbcType="VARCHAR" property="blogNumber" />
+    <result column="commit_type" jdbcType="TINYINT" property="commitType" />
     <result column="allow_comment" jdbcType="BIT" property="allowComment" />
     <result column="allow_ping" jdbcType="BIT" property="allowPing" />
     <result column="allow_feed" jdbcType="BIT" property="allowFeed" />
@@ -81,7 +83,7 @@
   </sql>
   <sql id="Base_Column_List">
     cid, title, slug, created, modified, author_id, type, status, tags, categories, hits, 
-    comments_num, allow_comment, allow_ping, allow_feed
+    comments_num, blog_number, commit_type, allow_comment, allow_ping, allow_feed
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -146,13 +148,15 @@
     insert into t_contents (cid, title, slug, 
       created, modified, author_id, 
       type, status, tags, 
-      categories, hits, comments_num, 
+      categories, hits, comments_num,
+      blog_number, commit_type,
       allow_comment, allow_ping, allow_feed, 
       content)
     values (#{cid,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{slug,jdbcType=VARCHAR}, 
       #{created,jdbcType=INTEGER}, #{modified,jdbcType=INTEGER}, #{authorId,jdbcType=INTEGER}, 
       #{type,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
-      #{categories,jdbcType=VARCHAR}, #{hits,jdbcType=INTEGER}, #{commentsNum,jdbcType=INTEGER}, 
+      #{categories,jdbcType=VARCHAR}, #{hits,jdbcType=INTEGER}, #{commentsNum,jdbcType=INTEGER},
+      #{blogNumber, jdbcType=VARCHAR}, #{commitType, jdbcType=TINYINT},
       #{allowComment,jdbcType=BIT}, #{allowPing,jdbcType=BIT}, #{allowFeed,jdbcType=BIT}, 
       #{content,jdbcType=LONGVARCHAR})
   </insert>
@@ -194,6 +198,12 @@
       </if>
       <if test="commentsNum != null">
         comments_num,
+      </if>
+      <if test="blogNumber != null">
+        blog_number,
+      </if>
+      <if test="commitType != null">
+        commit_type,
       </if>
       <if test="allowComment != null">
         allow_comment,
@@ -244,6 +254,12 @@
       </if>
       <if test="commentsNum != null">
         #{commentsNum,jdbcType=INTEGER},
+      </if>
+      <if test="blogNumber != null">
+        #{blogNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="commitType != null">
+        #{commitType,jdbcType=TINYINT},
       </if>
       <if test="allowComment != null">
         #{allowComment,jdbcType=BIT},
@@ -304,6 +320,15 @@
       <if test="record.commentsNum != null">
         comments_num = #{record.commentsNum,jdbcType=INTEGER},
       </if>
+
+      <if test="record.blogNumber != null">
+        blog_number = #{record.blogNumber,jdbcType=INTEGER},
+      </if>
+
+      <if test="record.commitType != null">
+        commit_type = #{record.commitType,jdbcType=INTEGER},
+      </if>
+
       <if test="record.allowComment != null">
         allow_comment = #{record.allowComment,jdbcType=BIT},
       </if>
@@ -335,6 +360,8 @@
       categories = #{record.categories,jdbcType=VARCHAR},
       hits = #{record.hits,jdbcType=INTEGER},
       comments_num = #{record.commentsNum,jdbcType=INTEGER},
+      blog_number = #{record.blogNumber, jdbcType=VARCHAR},
+      commit_type = #{record.commitType, jdbcType=TINYINT},
       allow_comment = #{record.allowComment,jdbcType=BIT},
       allow_ping = #{record.allowPing,jdbcType=BIT},
       allow_feed = #{record.allowFeed,jdbcType=BIT},
@@ -357,6 +384,8 @@
       categories = #{record.categories,jdbcType=VARCHAR},
       hits = #{record.hits,jdbcType=INTEGER},
       comments_num = #{record.commentsNum,jdbcType=INTEGER},
+      blog_number = #{record.blogNumber, jdbcType=VARCHAR},
+      commit_type = #{record.commitType, jdbcType=TINYINT},
       allow_comment = #{record.allowComment,jdbcType=BIT},
       allow_ping = #{record.allowPing,jdbcType=BIT},
       allow_feed = #{record.allowFeed,jdbcType=BIT}
@@ -400,6 +429,12 @@
       <if test="commentsNum != null">
         comments_num = #{commentsNum,jdbcType=INTEGER},
       </if>
+      <if test="blogNumber != null">
+        blog_number = #{blogNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="commitType != null">
+        commit_type = #{commitType,jdbcType=TINYINT},
+      </if>
       <if test="allowComment != null">
         allow_comment = #{allowComment,jdbcType=BIT},
       </if>
@@ -428,6 +463,8 @@
       categories = #{categories,jdbcType=VARCHAR},
       hits = #{hits,jdbcType=INTEGER},
       comments_num = #{commentsNum,jdbcType=INTEGER},
+      blog_number = #{blogNumber, jdbcType=VARCHAR},
+      commit_type = #{commitType, jdbcType=TINYINT},
       allow_comment = #{allowComment,jdbcType=BIT},
       allow_ping = #{allowPing,jdbcType=BIT},
       allow_feed = #{allowFeed,jdbcType=BIT},
@@ -447,6 +484,8 @@
       categories = #{categories,jdbcType=VARCHAR},
       hits = #{hits,jdbcType=INTEGER},
       comments_num = #{commentsNum,jdbcType=INTEGER},
+      blog_number = #{blogNumber, jdbcType=VARCHAR},
+      commit_type = #{commitType, jdbcType=TINYINT},
       allow_comment = #{allowComment,jdbcType=BIT},
       allow_ping = #{allowPing,jdbcType=BIT},
       allow_feed = #{allowFeed,jdbcType=BIT}
@@ -469,5 +508,37 @@
     from t_contents a left join t_relationships b on a.cid = b.cid
     where b.mid = #{value} and a.status = 'publish' and a.type = 'post'
     order by a.created desc
+  </select>
+
+  <select id="selectByBlogNumberIn" parameterType="java.util.List" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_contents
+    where
+    commit_type = 2
+    AND blog_number IN
+    <foreach collection="blogNumbers" item="blogNumber" open="(" close=")" separator=",">
+    #{blogNumber, jdbcType=VARCHAR}
+    </foreach>
+  </select>
+
+  <delete id="deleteByBlogNumberNotIn" parameterType="java.util.List">
+    DELETE FROM `t_contents` WHERE commit_type = 2 AND blog_number NOT IN
+    <foreach collection="blogNumbers" item="blogNumber" open="(" close=")" separator=",">
+      #{blogNumber, jdbcType=VARCHAR}
+    </foreach>
+  </delete>
+
+  <select id="selectByBlogNumber" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_contents
+    where
+    commit_type = 2
+    AND blog_number = #{blogNumber, jdbcType=VARCHAR}
   </select>
 </mapper>

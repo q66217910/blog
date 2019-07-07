@@ -21,6 +21,9 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Value("${" + WebConst.FILE_PATH_KEY + "}")
     String filePath;
 
+    @Value("${github.blog.attachpath}")
+    String gitAttachPath;
+
     @Resource
     private BaseInterceptor baseInterceptor;
     @Override
@@ -36,6 +39,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         TaleUtils.setFilePath(filePath);
         registry.addResourceHandler("/upload/**").addResourceLocations("file:"+ TaleUtils.getFilePath() + "upload/");
+        registry.addResourceHandler("/" + gitAttachPath + "**").addResourceLocations("file:" + TaleUtils.getFilePath() + gitAttachPath);
         super.addResourceHandlers(registry);
     }
 }

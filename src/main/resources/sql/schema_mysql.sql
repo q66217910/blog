@@ -48,16 +48,19 @@ CREATE TABLE IF NOT EXISTS `t_contents` (
     `categories` varchar(255) DEFAULT NULL,
     `hits` int(11) DEFAULT '0',
     `comments_num` tinyint(1) DEFAULT '0',
+    `blog_number` VARCHAR(255) NULL COMMENT 'github 的 data-blog-id',
+    `commit_type` TINYINT(1) NULL DEFAULT '1' COMMENT '提交类型： 1 - 普通， 2 - github自动提交',
     `allow_comment` tinyint(1) DEFAULT '1',
     `allow_ping` tinyint(1) DEFAULT NULL,
     `allow_feed` tinyint(1) DEFAULT NULL,
-    PRIMARY KEY (`cid`)
+    PRIMARY KEY (`cid`),
+    UNIQUE KEY `uk_blog_number` (`commit_type` ASC, `blog_number` ASC),
+    INDEX `idx_commit_type` (`commit_type` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `t_contents` VALUES 
-(1,'关于','about',NULL,1487853610,1487872488,'### Hello World\n\n这是我的关于页面\n\n### 当然还有其他\n\n具体你来写点什么吧',1,'page','publish','markdown',NULL,NULL,0,0,1,1,1),
-(2,'第一篇文章',NULL,NULL,1487861184,1487872798,'## Hello  World.\n\n> 第一篇文章总得写点儿什么?...\n\n----------\n\n\n<!--more-->\n\n```java\npublic static void main(String[] args){\n    System.out.println(\"Hello Tale.\");\n}\n```',1,'post','publish','markdown','','默认分类',10,0,1,1,1),
-(3,'友情链接','links',NULL,1487861184,1487861184,'## 友情链接\n\n## 链接须知\n\n> 请确定贵站可以稳定运营\n> 原创博客优先，技术类博客优先，设计、视觉类博客优先\n> 经常过来访问和评论，眼熟的\n\n备注：默认申请友情链接均为内页（当前页面）\n\n## 基本信息\n\n请在当页通过评论来申请友链，其他地方不予回复\n\n暂时先这样，同时欢迎互换友链，这个页面留言即可。 ^_^\n\n还有，我会不定时对无法访问的网址进行清理，请保证自己的链接长期有效。',1,'page','publish','markdown',NULL,NULL,0,0,1,1,NULL);
+(1,'关于','about',NULL,1487853610,1487872488,'### Hello World\n\n这是我的关于页面\n\n### 当然还有其他\n\n具体你来写点什么吧',1,'page','publish','markdown',NULL,NULL,0,0,NULL,1,1,1,1),
+(3,'友情链接','links',NULL,1487861184,1487861184,'## 友情链接\n\n## 链接须知\n\n> 请确定贵站可以稳定运营\n> 原创博客优先，技术类博客优先\n> 经常过来访问和评论，眼熟的\n\n备注：默认申请友情链接均为内页（当前页面）\n\n## 基本信息\n\n请在当页通过评论来申请友链，其他地方不予回复\n\n暂时先这样，同时欢迎互换友链，这个页面留言即可。 ^_^\n\n还有，我会不定时对无法访问的网址进行清理，请保证自己的链接长期有效。',1,'page','publish','markdown',NULL,NULL,0,0,NULL,1,1,1,NULL);
 
 -- 表：t_logs
 CREATE TABLE IF NOT EXISTS `t_logs`(

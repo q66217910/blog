@@ -65,6 +65,18 @@ public class ContentVo implements Serializable {
      * 内容所属评论数
      */
     private Integer commentsNum;
+    /**
+     * GITHUB data-blog-id
+     */
+    private String blogNumber;
+
+    public static final Short COMMIT_TYPE_NORMAL = 1;
+    public static final Short COMMIT_TYPE_GITHUB = 2;
+
+    /**
+     * 1 - normal, 2 - github
+     */
+    private Short commitType = COMMIT_TYPE_NORMAL;
 
     /**
      * 是否允许评论
@@ -182,6 +194,22 @@ public class ContentVo implements Serializable {
 
     public void setCommentsNum(Integer commentsNum) {
         this.commentsNum = commentsNum;
+    }
+
+    public String getBlogNumber() {
+        return blogNumber;
+    }
+
+    public void setBlogNumber(String blogNumber) {
+        this.blogNumber = blogNumber;
+    }
+
+    public Short getCommitType() {
+        return commitType;
+    }
+
+    public void setCommitType(Short commitType) {
+        this.commitType = commitType;
     }
 
     public Boolean getAllowComment() {
