@@ -15,7 +15,7 @@ public class SpringConfig {
 
     @Bean
     public Trigger githubQuartzJobTrigger() {
-        CronScheduleBuilder builder = CronScheduleBuilder.cronSchedule("5 6 9,23 * * ?");
+        CronScheduleBuilder builder = CronScheduleBuilder.cronSchedule("5 36 4,12,22 * * ?");
 //        SimpleScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule()
 //                .withIntervalInSeconds(60 * 10)  //设置时间周期单位秒
 //                .repeatForever();

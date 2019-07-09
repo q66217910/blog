@@ -1,9 +1,9 @@
 package com.my.blog.website.job;
 
+import com.my.blog.website.constant.GithubConst;
 import com.my.blog.website.constant.WebConst;
 import com.my.blog.website.dao.ContentVoMapper;
 import com.my.blog.website.dto.Types;
-import com.my.blog.website.exception.TipException;
 import com.my.blog.website.modal.Vo.ContentVo;
 import com.my.blog.website.modal.Vo.ContentVoExample;
 import com.my.blog.website.service.IMetaService;
@@ -42,23 +42,8 @@ public class GithubQuartzJob extends QuartzJobBean {
 
     @Value("${file.path}/git")
     String savePath;
-
-    @Value("${github.blog.name}")
-    String folderName;
-    @Value("${github.blog.index}")
-    String indexName;
-    @Value("${github.blog.articleid}")
-    String idPropName;
-    @Value("${github.blog.earlierid}")
-    String earlierIdPropName;
-    @Value("${github.blog.ignore}")
-    String ignorePropName;
-    @Value("${github.blog.path}")
-    String urlPropName;
-    @Value("${github.blog.attachpath}")
-    String gitAttachPath;
-    @Value("${github.blog.article.authorId}")
-    Integer authId;
+    @Autowired
+    GithubConst githubConst;
 
     String PROP_REGEX = "([a-zA-Z-]+)=\"(.*?)\"";
     String NAME_REGEX = "<a.*?>(.*)</a>";
@@ -130,12 +115,12 @@ public class GithubQuartzJob extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         LOG.debug("EXECUTE GITHUB BLOG UPDATE");
-        FileOutputStream fos = null;
         File zipFile = null;
         try {
             zipFile = downloadGitProject();
 
-            File file = unzipToFolder(zipFile, new File(savePath + "/" + folderName));
+            File file = new File(savePath + "/" + githubConst.getName());
+            unzipToFolder(zipFile, file);
 
             List<GithubArticle> githubArticles = readGithubArticleList(file);
             if (githubArticles == null) {
@@ -186,12 +171,6 @@ public class GithubQuartzJob extends QuartzJobBean {
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException ignore) {
-                }
-            }
             FileTool.deleteFiles(zipFile);
         }
     }
@@ -200,7 +179,7 @@ public class GithubQuartzJob extends QuartzJobBean {
         ContentVo contents = new ContentVo();
         contents.setTitle(article.blogName);
         contents.setContent(article.content);
-        contents.setAuthorId(authId);
+        contents.setAuthorId(githubConst.getAuthorId());
         contents.setSlug(UUID.randomUUID().toString());
         contents.setCommitType(ContentVo.COMMIT_TYPE_GITHUB);
         contents.setBlogNumber(article.blogId);
@@ -211,54 +190,51 @@ public class GithubQuartzJob extends QuartzJobBean {
         contents.setAllowPing(true);
         contents.setAllowFeed(true);
 
-        if (StringUtils.isBlank(contents.getContent())) {
-            throw new TipException("文章内容不能为空");
+        if (null == contents.getAuthorId()) {
+            throw new RuntimeException("请登录后发布文章");
         }
         int titleLength = contents.getTitle().length();
         if (titleLength > WebConst.MAX_TITLE_COUNT) {
-            throw new TipException("文章标题过长");
+            throw new RuntimeException("文章标题过长");
+        }
+        if (StringUtils.isBlank(contents.getContent())) {
+            throw new RuntimeException("文章内容不能为空");
         }
         int contentLength = contents.getContent().length();
         if (contentLength > WebConst.MAX_TEXT_COUNT) {
-            throw new TipException("文章内容过长");
-        }
-        if (null == contents.getAuthorId()) {
-            throw new TipException("请登录后发布文章");
+            throw new RuntimeException("文章内容过长");
         }
         if (StringUtils.isNotBlank(contents.getSlug())) {
             if (contents.getSlug().length() < 5) {
-                throw new TipException("路径太短了");
+                throw new RuntimeException("路径太短了");
             }
-            if (!TaleUtils.isPath(contents.getSlug())) throw new TipException("您输入的路径不合法");
+            if (!TaleUtils.isPath(contents.getSlug())) throw new RuntimeException("您输入的路径不合法");
             ContentVoExample contentVoExample = new ContentVoExample();
             contentVoExample.createCriteria().andTypeEqualTo(contents.getType()).andStatusEqualTo(contents.getSlug());
             long count = contentVoMapper.countByExample(contentVoExample);
-            if (count > 0) throw new TipException("该路径已经存在，请重新输入");
+            if (count > 0) throw new RuntimeException("该路径已经存在，请重新输入");
         } else {
             contents.setSlug(null);
         }
 
-        LOG.debug(contents.getContent());
         contents.setContent(EmojiParser.parseToAliases(contents.getContent()));
-        LOG.debug(contents.getContent());
 
         int time = DateKit.getCurrentUnixTime();
         contents.setCreated(time);
         contents.setModified(time);
-        contents.setHits(0);
         contents.setCommentsNum(0);
+        contents.setHits(0);
 
         String tags = contents.getTags();
         String categories = contents.getCategories();
         contentVoMapper.insert(contents);
         Integer cid = contents.getCid();
 
-        metasService.saveMetas(cid, tags, Types.TAG.getType());
         metasService.saveMetas(cid, categories, Types.CATEGORY.getType());
+        metasService.saveMetas(cid, tags, Types.TAG.getType());
     }
 
     private void readFileContent(File githubFolder, GithubArticle article) throws IOException {
-        System.out.println(article.path);
         File file = new File(article.path);
 
         String s1 = FileTool.readAsString(file);
@@ -271,7 +247,7 @@ public class GithubQuartzJob extends QuartzJobBean {
         while (matcher.find()) {
             String link = matcher.group(2);
             if (StringUtil.isUrl(link)) continue;
-            linkMap.put(link, "/" + gitAttachPath + link);
+            linkMap.put(link, "/" + githubConst.getAttachPath() + link);
         }
 
         File parentFile = file.getParentFile();
@@ -287,19 +263,19 @@ public class GithubQuartzJob extends QuartzJobBean {
             }
             sb.append(s.replace(key, value));
         });
-//        String str = sb.toString();
-//        String[] split = str.split("\n");
-//        sb.delete(0, sb.length());
-//        int lineNum = 0;
-//        for (; lineNum < split.length; lineNum++) {
-//            if (StringUtil.isNotBlank(split[lineNum]) && !split[lineNum].trim().startsWith("# ")) {
-//                break;
-//            }
-//        }
-//        for (; lineNum < split.length; lineNum++) {
-//            sb.append("" + split[lineNum]);
-//        }
-//        if (sb.length() > 0) sb.delete(0, 1);
+        String str = sb.toString();
+        String[] split = str.split("\n");
+        sb.delete(0, sb.length());
+        int lineNum = 0;
+        for (; lineNum < split.length; lineNum++) {
+            if (StringUtil.isNotBlank(split[lineNum]) && !split[lineNum].trim().startsWith("# ")) {
+                break;
+            }
+        }
+        for (; lineNum < split.length; lineNum++) {
+            sb.append("" + split[lineNum]);
+        }
+        if (sb.length() > 0) sb.delete(0, 1);
         article.content = sb.toString();
     }
 
@@ -315,7 +291,7 @@ public class GithubQuartzJob extends QuartzJobBean {
         if (files == null) return null;
         File indexFile = null;
         for (File f : files) {
-            if (Objects.equals(f.getName(), indexName)) {
+            if (Objects.equals(f.getName(), githubConst.getIndexName())) {
                 indexFile = f;
                 break;
             }
@@ -335,11 +311,11 @@ public class GithubQuartzJob extends QuartzJobBean {
                 String name = matcher.group(1);
                 String value = matcher.group(2);
                 if (name == null) continue;
-                if (Objects.equals(name, idPropName)) {
+                if (Objects.equals(name, githubConst.getArticleIdProp())) {
                     article.blogId = value;
-                } else if (Objects.equals(name, earlierIdPropName)) {
+                } else if (Objects.equals(name, githubConst.getOriginIdProp())) {
                     article.originId = value;
-                } else if (Objects.equals(name, urlPropName)) {
+                } else if (Objects.equals(name, githubConst.getPathProp())) {
                     article.path = folder + "/" + value;
                 }
             }
@@ -347,7 +323,7 @@ public class GithubQuartzJob extends QuartzJobBean {
             if (matcher2.find()) {
                 article.blogName = matcher2.group(1);
             }
-            article.ignore = headTag.contains(ignorePropName);
+            article.ignore = headTag.contains(githubConst.getIgnoreProp());
             list.add(article);
             return fullTag;
         });

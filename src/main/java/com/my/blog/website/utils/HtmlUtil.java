@@ -46,7 +46,10 @@ public class HtmlUtil {
             StringBuilder escape1 = new StringBuilder();
             escape1.append("(?i)(?s)"); // 大小写不敏感，.匹配行终止符
             for (String tag : fullEscapeTag) {
-                escape1.append("(<" + tag + "([ ]+[^ >]+?)*[ ]*>.*?</" + tag + ">)");
+                escape1.append("(<")
+						.append(tag)
+						.append("([ ]+[^ >]+?)*[ ]*>.*?</")
+						.append(tag).append(">)");
                 escape1.append("|");
             }
             escape1.delete(escape1.length() - 1, escape1.length());
@@ -55,7 +58,9 @@ public class HtmlUtil {
             StringBuilder escape2 = new StringBuilder();
             escape2.append("(?i)(?s)");
             for (String tag : escapeByLFTag) {
-                escape2.append("(<" + tag + "([ ]+[^ >]+?)*[ ]*[/]?>)");
+                escape2.append("(<")
+						.append(tag)
+						.append("([ ]+[^ >]+?)*[ ]*[/]?>)");
                 escape2.append("|");
             }
             escape2.delete(escape2.length() - 1, escape2.length());
@@ -64,7 +69,11 @@ public class HtmlUtil {
             StringBuilder escape3 = new StringBuilder();
             escape3.append("(?i)(?s)");
             for (String tag : escapeByBlankTag) {
-                escape3.append("(<" + tag + "([ ]+[^ >]+?)*[ ]*[/]?>)|(</" + tag + ">)");
+                escape3.append("(<")
+						.append(tag)
+						.append("([ ]+[^ >]+?)*[ ]*[/]?>)|(</")
+						.append(tag)
+						.append(">)");
                 escape3.append("|");
             }
             escape3.delete(escape3.length() - 1, escape3.length());
@@ -73,15 +82,25 @@ public class HtmlUtil {
             StringBuilder escape4 = new StringBuilder();
             escape4.append("(?i)(?s)");
             for (String tag : otherTag) {
-                escape4.append("(<" + tag + "([ ]+[^ >]+?)*[ ]*[/]?>)|(</" + tag + ">)");
+                escape4.append("(<")
+						.append(tag)
+						.append("([ ]+[^ >]+?)*[ ]*[/]?>)|(</")
+						.append(tag)
+						.append(">)");
                 escape4.append("|");
             }
             for (String tag : fullEscapeTag) {// 防止遗漏的只有标签头/尾 的标签
-                escape4.append("(<" + tag + "([ ]+[^ >]+?)*[ ]*[/]?>)|(</" + tag + ">)");
+                escape4.append("(<")
+						.append(tag)
+						.append("([ ]+[^ >]+?)*[ ]*[/]?>)|(</")
+						.append(tag)
+						.append(">)");
                 escape4.append("|");
             }
             for (String tag : escapeByLFTag) {
-                escape4.append("(</" + tag + ">)");
+                escape4.append("(</")
+						.append(tag)
+						.append(">)");
                 escape4.append("|");
             }
             escape4.delete(escape4.length() - 1, escape4.length());
@@ -96,16 +115,15 @@ public class HtmlUtil {
             Map<String, String> scriptMap = new LinkedHashMap<>();
             // 去除脚本
             scriptMap.put("(?s)<!--.*?-->", "");
-            StringBuilder scriptEscape = new StringBuilder();
-            scriptEscape.append("(?i)(?s)");
-            scriptEscape.append("(<script([ ]+[^ >]+?)*[ ]*>.*?</script>)");
-            scriptEscape.append("|");
-            scriptEscape.append("(<link([ ]+[^ >]+?)*[ ]*>.*?</link>)");
-            scriptEscape.append("|");
-            scriptEscape.append("(<style([ ]+[^ >]+?)*[ ]*>.*?</style>)");
-            scriptEscape.append("|");
-            scriptEscape.append("(<meta([ ]+[^ >]+?)*[ ]*>.*?</meta>)");
-            scriptMap.put(scriptEscape.toString(), "");
+			String scriptEscape = "(?i)(?s)" +
+					"(<script([ ]+[^ >]+?)*[ ]*>.*?</script>)" +
+					"|" +
+					"(<link([ ]+[^ >]+?)*[ ]*>.*?</link>)" +
+					"|" +
+					"(<style([ ]+[^ >]+?)*[ ]*>.*?</style>)" +
+					"|" +
+					"(<meta([ ]+[^ >]+?)*[ ]*>.*?</meta>)";
+			scriptMap.put(scriptEscape, "");
             ESCAPE_SCRIPT_REPLACE_MAP = scriptMap;
         }
     }

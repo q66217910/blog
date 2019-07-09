@@ -11,6 +11,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -19,11 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import java.util.*;
 
 /**
  * @Author: Vince
@@ -188,13 +186,32 @@ public class HttpClientUtil {
         return httpGet;
     }
 
+    private static HttpClientBuilder getHttpClientBuilder() {
+        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+        setProxy(httpClientBuilder);
+        return httpClientBuilder;
+    }
+
+    private static void setProxy(HttpClientBuilder httpClientBuilder) {
+        String proxyHost = System.getProperty("proxy.host");
+        String proxyPort = System.getProperty("proxy.port");
+        Integer port = null;
+        try {
+            port = proxyPort == null ? null : Integer.valueOf(proxyPort);
+        } catch (Exception ignore) {}
+        if (proxyHost != null && port != null) {
+            HttpHost proxy = new HttpHost(proxyHost, port);
+            DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
+            httpClientBuilder.setRoutePlanner(routePlanner);
+        }
+    }
+
     private static HttpResponseVo doRequest(HttpUriRequest request) {
         HttpResponseVo hrr = new HttpResponseVo();
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+        HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
 
         try (CloseableHttpClient httpClient = httpClientBuilder.build();
              CloseableHttpResponse response = httpClient.execute(request)) {
-
             int code = response.getStatusLine().getStatusCode();
             Map<String, List<String>> headers = getResponseHeaders(response);
             HttpEntity entity = response.getEntity();
@@ -234,7 +251,7 @@ public class HttpClientUtil {
 
     private static HttpResponseVo doLoad(HttpUriRequest request) {
         HttpResponseVo hrr = new HttpResponseVo();
-        HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+        HttpClientBuilder httpClientBuilder = getHttpClientBuilder();
 
         try (CloseableHttpClient httpClient = httpClientBuilder.build();
              CloseableHttpResponse response = httpClient.execute(request)) {
