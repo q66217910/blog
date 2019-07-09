@@ -173,11 +173,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0-rc2</version>
+        </dependency>
     </dependencies>
 
     <!-- 普通的maven打包方式 -->
     <build>
             <plugins>
+                <!-- clean package spring-boot:repackage -Dmaven.test.skip=true -->
+                <!-- spring-boot:run -Dspring.profiles.active=dev -Dspring.datasource.url=jdbc:mysql://localhost:3306/iblog?useSSL=false&useUnicode=true -Dspring.datasource.username=root -Dspring.datasource.password=123456 -Dtitle=流风的博客 -Dserver.admin.prefix=/admin -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>

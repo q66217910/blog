@@ -111,17 +111,33 @@ public class FileTool {
         return fileName.substring(i + 1).toLowerCase();
     }
 
+    public static boolean fileEquals(File file1, File file2) {
+	    if (file1 == file2) return true;
+	    if (file1 == null || file2 == null) return false;
+	    boolean eq = false;
+        try {
+            eq = file1.getCanonicalFile().equals(file2.getCanonicalFile());
+        } catch (Exception ignore) {}
+        return eq;
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void deleteFiles(File file) {
         deleteFiles0(file, null);
     }
 
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void deleteFiles0(File file, File ignore) {
         if (file == null || !file.exists()) {
             return;
         }
-        if (file.equals(ignore)) {
+        if (fileEquals(file, ignore)) {
             return;
+        }
+        try {
+            file = file.getCanonicalFile();
+        } catch (IOException ignored) {
         }
         if (file.isDirectory()) {
             File[] children = file.listFiles();
@@ -138,11 +154,11 @@ public class FileTool {
     }
 
     private static void copyFiles0 (File sourceFile, File targetFile, boolean override, File startTargetFile) throws IOException {
-        Objects.requireNonNull(sourceFile);
-        Objects.requireNonNull(targetFile);
+        sourceFile = Objects.requireNonNull(sourceFile).getCanonicalFile();
+        targetFile = Objects.requireNonNull(targetFile).getCanonicalFile();
 
         // 忽略源文件里的目标文件目录
-        if (sourceFile.equals(startTargetFile)) {
+        if (fileEquals(sourceFile, startTargetFile)) {
             return;
         }
 

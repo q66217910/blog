@@ -1,42 +1,32 @@
 package com.my.blog.website;
 
-import com.my.blog.website.utils.FileTool;
-import com.my.blog.website.utils.HttpClientUtil;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class SimpleTest {
 
     public static void main(String[] args) throws IOException {
-        Map<String, Object> header = new HashMap<>();
-        header.put("User-Agent", "Wget/1.17.1 (linux-gnu)");
-        header.put("Accept", "*/*");
-        header.put("Connection", "Keep-Alive");
-        String preUrl = "https://github.com/Uetty/uetty.github.io";
-//        HttpClientUtil.HttpResponseVo responseVo0 = HttpClientUtil.doGet(preUrl, header, null);
-//        Map<String, List<String>> headers = responseVo0.getHeaders();
-//
-//        System.out.println(headers);
+        File file = new File("../uetty.github.io/./blog/../blog/2018-09-21_shadowsocks.md");
+        File file1 = new File("/data/blog/git/uetty.github.io/./blog/2018-09-21_shadowsocks.md");
 
-        String url = "https://codeload.github.com/Uetty/uetty.github.io/zip/master";
-        header.put("Host", "codeload.github.com");
-        HttpClientUtil.HttpResponseVo responseVo = HttpClientUtil.doGetLoad(url, header, null);
-        InputStream inputStream = responseVo.getInputStream();
-        if (inputStream == null) throw new RuntimeException("DOWNLOAD FAILED");
-        String zipFileName = UUID.randomUUID() + ".zip";
-        File file = new File("/data/" + zipFileName);
-        if (!file.exists()) {
-            file.getParentFile().mkdirs();
-        } else {
-            file.delete();
-        }
-        file.createNewFile();
-        FileTool.writeFromInputStream(new FileOutputStream(file), inputStream);
+        System.out.println(file.exists());
+        System.out.println(file1.exists());
+
+        System.out.println(file.getCanonicalFile().getAbsolutePath());
+        System.out.println(file1.getCanonicalFile().getAbsolutePath());
+
+        System.out.println(file.equals(file1));
+
+
+        Map<String, String> map = new LinkedHashMap<>();
+
+        map.put("dfafd", "gwe");
+        map.put("dfafd2", "gwe");
+        map.put("dfafd3", "gwe");
+        map.put("dfafd4", "gwe");
+        map.put("dfafd5", "gwe");
+
     }
 }

@@ -510,7 +510,7 @@
     order by a.created desc
   </select>
 
-  <select id="selectByBlogNumberIn" parameterType="java.util.List" resultMap="ResultMapWithBLOBs">
+  <select id="selectByBlogNumberInWithBLOBs" parameterType="java.util.List" resultMap="ResultMapWithBLOBs">
     select
     <include refid="Base_Column_List" />
     ,
@@ -523,6 +523,17 @@
     #{blogNumber, jdbcType=VARCHAR}
     </foreach>
   </select>
+  <select id="selectByBlogNumberIn" parameterType="java.util.List" resultMap="ResultMapWithBLOBs">
+    select
+    <include refid="Base_Column_List" />
+    from t_contents
+    where
+    commit_type = 2
+    AND blog_number IN
+    <foreach collection="blogNumbers" item="blogNumber" open="(" close=")" separator=",">
+      #{blogNumber, jdbcType=VARCHAR}
+    </foreach>
+  </select>
 
   <delete id="deleteByBlogNumberNotIn" parameterType="java.util.List">
     DELETE FROM `t_contents` WHERE commit_type = 2 AND blog_number NOT IN
@@ -531,7 +542,7 @@
     </foreach>
   </delete>
 
-  <select id="selectByBlogNumber" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByBlogNumberWithBLOBs" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select
     <include refid="Base_Column_List" />
     ,

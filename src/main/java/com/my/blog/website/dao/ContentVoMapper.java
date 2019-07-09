@@ -42,9 +42,10 @@ public interface ContentVoMapper {
 
     List<ContentVo> findByCatalog(Integer mid);
 
+    List<ContentVo> selectByBlogNumberInWithBLOBs(@Param("blogNumbers") List<String> blogNumbers);
     List<ContentVo> selectByBlogNumberIn(@Param("blogNumbers") List<String> blogNumbers);
 
     int deleteByBlogNumberNotIn(@Param("blogNumbers") List<String> blogNumbers);
 
-    ContentVo selectByBlogNumber(@Param("blogNumber") String blogNumber);
+    ContentVo selectByBlogNumberWithBLOBs(@Param("blogNumber") String blogNumber);
 }

@@ -37,9 +37,6 @@ public class GithubQuartzJob extends QuartzJobBean {
     @Autowired
     IMetaService metasService;
 
-    @Value("${github.repo.url}")
-    String githubRepoUrl;
-
     @Value("${file.path}/git")
     String savePath;
     @Autowired
@@ -85,7 +82,7 @@ public class GithubQuartzJob extends QuartzJobBean {
         FileOutputStream fos = null;
         File file;
         try {
-            HttpClientUtil.HttpResponseVo responseVo = HttpClientUtil.doGetLoad(githubRepoUrl, null, null);
+            HttpClientUtil.HttpResponseVo responseVo = HttpClientUtil.doGetLoad(githubConst.getUrl(), null, null);
             InputStream inputStream = responseVo.getInputStream();
             if (inputStream == null) throw new RuntimeException("DOWNLOAD FAILED");
             String zipFileName = randomName() + ".zip";
@@ -153,10 +150,11 @@ public class GithubQuartzJob extends QuartzJobBean {
             List<String> currentBlogIds = githubArticles.stream().map(article -> article.blogId).collect(Collectors.toList());
             contentVoMapper.deleteByBlogNumberNotIn(currentBlogIds);
 
+            List<GithubArticle> cloneArticles = new ArrayList<>(githubArticles);
             githubArticles.forEach(article -> {
                 try {
-                    ContentVo contentVo = contentVoMapper.selectByBlogNumber(article.blogId);
-                    readFileContent(file, article);
+                    ContentVo contentVo = contentVoMapper.selectByBlogNumberWithBLOBs(article.blogId);
+                    readFileContent(article, cloneArticles);
 
                     if (contentVo != null) {
                         updateContent(contentVo, article);
@@ -168,11 +166,44 @@ public class GithubQuartzJob extends QuartzJobBean {
                 }
             });
 
+            Set<String> blogNumbers = new HashSet<>();
+            List<GithubArticle> articles = cloneArticles.stream().filter(article -> {
+                blogNumbers.addAll(article.refIdSet);
+                return article.refIdSet.size() > 0;
+            }).collect(Collectors.toList());
+
+            if (articles.size() > 0) {
+                List<ContentVo> refBlogList = contentVoMapper.selectByBlogNumberIn(new ArrayList<>(blogNumbers));
+                for (GithubArticle art : articles) {
+                    replaceContentRef(art, refBlogList);
+                }
+            }
+
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         } finally {
             FileTool.deleteFiles(zipFile);
         }
+    }
+
+    private void replaceContentRef (GithubArticle art, List<ContentVo> refBlogList) {
+        try {
+            ContentVo contentVo = contentVoMapper.selectByBlogNumberWithBLOBs(art.blogId);
+            String content = contentVo.getContent();
+            if (content == null) return;
+            for (String refId : art.refIdSet) {
+                String refSlug = null;
+                for (ContentVo refContent : refBlogList) {
+                    if (refContent.getBlogNumber().equals(refId)) {
+                        refSlug = StringUtil.isNotBlank(contentVo.getSlug()) ? refContent.getSlug() : refContent.getCid() + "";
+                        break;
+                    }
+                }
+                content = content.replace(getMarkRefName(refId), "./" + refSlug);
+            }
+            contentVo.setContent(content);
+            contentVoMapper.updateByPrimaryKeyWithBLOBs(contentVo);
+        } catch (Exception ignore) {}
     }
 
     private void createContent(GithubArticle article) {
@@ -234,25 +265,50 @@ public class GithubQuartzJob extends QuartzJobBean {
         metasService.saveMetas(cid, tags, Types.TAG.getType());
     }
 
-    private void readFileContent(File githubFolder, GithubArticle article) throws IOException {
+    private String getMarkRefName (String refId) {
+        return "<ref=" + refId + ">";
+    }
+
+    private void readFileContent(GithubArticle article, List<GithubArticle> possibleRefArticle) throws IOException {
         File file = new File(article.path);
+        File parentFile = file.getParentFile();
+
 
         String s1 = FileTool.readAsString(file);
         StringBuilder sb = new StringBuilder().append(s1);
 
         Pattern linkPatter = Pattern.compile("\\[(.*?)\\]\\([<]?(.*?)[>]?\\)");
         Matcher matcher = linkPatter.matcher(sb.toString());
-        Map<String, String> linkMap = new HashMap<>();
+        Map<String, String> attachMap = new HashMap<>();
+        Map<String, String> refMap = new HashMap<>();
 
         while (matcher.find()) {
             String link = matcher.group(2);
+            if (StringUtils.isBlank(link)) continue;
             if (StringUtil.isUrl(link)) continue;
-            linkMap.put(link, "/" + githubConst.getAttachPath() + link);
+            File linkFile = new File(parentFile, link);
+            String refId = null;
+            for (GithubArticle ref : possibleRefArticle) {
+                File file1 = new File(ref.path);
+                if (FileTool.fileEquals(linkFile, file1)) {
+                    refId = ref.blogId;
+                    break;
+                }
+            }
+            if (refId != null) {
+                refMap.put(link, refId);
+                continue;
+            }
+            attachMap.put(link, "/" + githubConst.getAttachPath() + link);
         }
 
-        File parentFile = file.getParentFile();
-
-        linkMap.forEach((key, value) -> {
+        refMap.forEach((key, value) -> {
+            String s = sb.toString();
+            sb.delete(0, sb.length());
+            article.refIdSet.add(value);
+            sb.append(s.replace(key, getMarkRefName(value)));
+        });
+        attachMap.forEach((key, value) -> {
             String s = sb.toString();
             sb.delete(0, sb.length());
             File attach = new File(parentFile, key);
@@ -263,8 +319,8 @@ public class GithubQuartzJob extends QuartzJobBean {
             }
             sb.append(s.replace(key, value));
         });
-        String str = sb.toString();
-        String[] split = str.split("\n");
+        s1 = sb.toString();
+        String[] split = s1.split("\n");
         sb.delete(0, sb.length());
         int lineNum = 0;
         for (; lineNum < split.length; lineNum++) {
@@ -273,7 +329,7 @@ public class GithubQuartzJob extends QuartzJobBean {
             }
         }
         for (; lineNum < split.length; lineNum++) {
-            sb.append("" + split[lineNum]);
+            sb.append("\n").append(split[lineNum]);
         }
         if (sb.length() > 0) sb.delete(0, 1);
         article.content = sb.toString();
@@ -283,7 +339,7 @@ public class GithubQuartzJob extends QuartzJobBean {
     private void updateContent(ContentVo contentVo, GithubArticle article) {
         contentVo.setTitle(article.blogName);
         contentVo.setContent(article.content);
-        contentVoMapper.updateByPrimaryKey(contentVo);
+        contentVoMapper.updateByPrimaryKeyWithBLOBs(contentVo);
     }
 
     private List<GithubArticle> readGithubArticleList(File blogFolder) throws IOException {
@@ -337,5 +393,6 @@ public class GithubQuartzJob extends QuartzJobBean {
         String path;
         Boolean ignore;
         String content;
+        Set<String> refIdSet = new HashSet<>();
     }
 }
