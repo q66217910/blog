@@ -55,7 +55,7 @@ public class ArticleController extends BaseController {
     public String index(@RequestParam(value = "page", defaultValue = "1") int page,
                         @RequestParam(value = "limit", defaultValue = "15") int limit, HttpServletRequest request) {
         ContentVoExample contentVoExample = new ContentVoExample();
-        contentVoExample.setOrderByClause("created desc");
+        contentVoExample.setOrderByClause("rank desc, created desc");
         contentVoExample.createCriteria().andTypeEqualTo(Types.ARTICLE.getType());
         PageInfo<ContentVo> contentsPaginator = contentsService.getArticlesWithpage(contentVoExample,page,limit);
         request.setAttribute("articles", contentsPaginator);

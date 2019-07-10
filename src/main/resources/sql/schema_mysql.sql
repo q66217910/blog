@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `t_contents` (
     `allow_comment` tinyint(1) DEFAULT '1',
     `allow_ping` tinyint(1) DEFAULT NULL,
     `allow_feed` tinyint(1) DEFAULT NULL,
+    `rank` INT(11) NULL DEFAULT 100,
     PRIMARY KEY (`cid`),
     UNIQUE KEY `uk_blog_number` (`commit_type` ASC, `blog_number` ASC),
     INDEX `idx_commit_type` (`commit_type` ASC)

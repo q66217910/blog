@@ -74,7 +74,7 @@
             $('#content-editor').val($('#text').val());
             $("#articleForm #categories").val($('#multiple-sel').val());
             var params = $("#articleForm").serialize();
-            var url = adminPrefix + $('#articleForm #cid').val() != '' ? '/page/modify' : '/page/publish';
+            var url = adminPrefix + ($('#articleForm #cid').val() != '' ? '/page/modify' : '/page/publish');
 
             tale.post({
                 url:url,

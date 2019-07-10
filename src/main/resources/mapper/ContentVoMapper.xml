@@ -523,7 +523,7 @@
     #{blogNumber, jdbcType=VARCHAR}
     </foreach>
   </select>
-  <select id="selectByBlogNumberIn" parameterType="java.util.List" resultMap="ResultMapWithBLOBs">
+  <select id="selectByBlogNumberIn" parameterType="java.util.List" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from t_contents

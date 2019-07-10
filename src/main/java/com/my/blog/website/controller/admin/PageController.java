@@ -109,7 +109,6 @@ public class PageController extends BaseController {
         contents.setContent(content);
         contents.setStatus(status);
         contents.setSlug(slug);
-        contents.setType(Types.PAGE.getType());
         if (null != allowComment) {
             contents.setAllowComment(allowComment == 1);
         }
