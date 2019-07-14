@@ -131,12 +131,12 @@ public class ContentServiceImpl implements IContentService {
         return null;
     }
 
-    @Override
-    public void updateContentByCid(ContentVo contentVo) {
-        if (null != contentVo && null != contentVo.getCid()) {
-            contentDao.updateByPrimaryKeySelective(contentVo);
-        }
-    }
+//    @Override
+//    public void updateContentByCid(ContentVo contentVo) {
+//        if (null != contentVo && null != contentVo.getCid()) {
+//            contentDao.updateByPrimaryKeySelective(contentVo);
+//        }
+//    }
 
     @Override
     public PageInfo<ContentVo> getArticles(Integer mid, int page, int limit) {

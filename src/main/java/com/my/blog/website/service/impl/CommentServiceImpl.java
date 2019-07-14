@@ -2,6 +2,7 @@ package com.my.blog.website.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.my.blog.website.dao.ContentVoMapper;
 import com.my.blog.website.exception.TipException;
 import com.my.blog.website.utils.DateKit;
 import com.my.blog.website.utils.TaleUtils;
@@ -34,6 +35,9 @@ public class CommentServiceImpl implements ICommentService {
     @Resource
     private IContentService contentService;
 
+    @Resource
+    private ContentVoMapper contentVoMapper;
+
     @Override
     public void insertComment(CommentVo comments) {
         if (null == comments) {
@@ -62,10 +66,8 @@ public class CommentServiceImpl implements ICommentService {
         comments.setCreated(DateKit.getCurrentUnixTime());
         commentDao.insertSelective(comments);
 
-        ContentVo temp = new ContentVo();
-        temp.setCid(contents.getCid());
-        temp.setCommentsNum(contents.getCommentsNum() + 1);
-        contentService.updateContentByCid(temp);
+        contents.setCommentsNum(contents.getCommentsNum() + 1);
+        contentVoMapper.updateByPrimaryKey(contents);
     }
 
     @Override
@@ -115,10 +117,10 @@ public class CommentServiceImpl implements ICommentService {
         commentDao.deleteByPrimaryKey(coid);
         ContentVo contents = contentService.getContents(cid + "");
         if (null != contents && contents.getCommentsNum() > 0) {
-            ContentVo temp = new ContentVo();
-            temp.setCid(cid);
-            temp.setCommentsNum(contents.getCommentsNum() - 1);
-            contentService.updateContentByCid(temp);
+
+            contents.setCid(cid);
+            contents.setCommentsNum(contents.getCommentsNum() - 1);
+            contentVoMapper.updateByPrimaryKey(contents);
         }
     }
 

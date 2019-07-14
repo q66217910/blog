@@ -1,6 +1,7 @@
 package com.my.blog.website.service.impl;
 
 import com.my.blog.website.constant.WebConst;
+import com.my.blog.website.dao.ContentVoMapper;
 import com.my.blog.website.dto.MetaDto;
 import com.my.blog.website.dto.Types;
 import com.my.blog.website.exception.TipException;
@@ -37,6 +38,9 @@ public class MetaServiceImpl implements IMetaService {
 
     @Resource
     private IContentService contentService;
+
+    @Resource
+    private ContentVoMapper contentVoMapper;
 
     @Override
     public MetaDto getMeta(String type, String name) {
@@ -94,15 +98,13 @@ public class MetaServiceImpl implements IMetaService {
                 for (RelationshipVoKey r : rlist) {
                     ContentVo contents = contentService.getContents(String.valueOf(r.getCid()));
                     if (null != contents) {
-                        ContentVo temp = new ContentVo();
-                        temp.setCid(r.getCid());
                         if (type.equals(Types.CATEGORY.getType())) {
-                            temp.setCategories(reMeta(name, contents.getCategories()));
+                            contents.setCategories(reMeta(name, contents.getCategories()));
                         }
                         if (type.equals(Types.TAG.getType())) {
-                            temp.setTags(reMeta(name, contents.getTags()));
+                            contents.setTags(reMeta(name, contents.getTags()));
                         }
-                        contentService.updateContentByCid(temp);
+                        contentVoMapper.updateByPrimaryKey(contents);
                     }
                 }
             }

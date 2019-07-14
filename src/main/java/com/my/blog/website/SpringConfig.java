@@ -1,6 +1,7 @@
 package com.my.blog.website;
 
 import com.my.blog.website.constant.ProfileConst;
+import com.my.blog.website.job.CacheFlushJob;
 import com.my.blog.website.job.GithubQuartzJob;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class SpringConfig {
         ScheduleBuilder builder;
         if (ProfileConst.PROFILE_DEVELOP.equalsIgnoreCase(profileConst.getActive())) {
             builder = SimpleScheduleBuilder.simpleSchedule()
-                .withIntervalInSeconds(60 * 10)  //设置时间周期单位秒
+                .withIntervalInSeconds(60 * 11)  //设置时间周期单位秒
                 .repeatForever();
         } else {
             builder = CronScheduleBuilder.cronSchedule("5 36 4,12,22 * * ?");
@@ -32,6 +33,24 @@ public class SpringConfig {
 
         return TriggerBuilder.newTrigger().forJob(githubQuartzJob())
                 .withIdentity("githubQuartzJob")
+                .withSchedule(builder)
+                .build();
+    }
+
+    @Bean
+    public JobDetail cacheFlushJob () {
+        return JobBuilder.newJob(CacheFlushJob.class).withIdentity("cacheFlushJob").storeDurably().build();
+    }
+
+    @Bean
+    public Trigger cachedFlushTrigger() {
+        ScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule()
+                .withIntervalInSeconds(60 * 17)  //设置时间周期单位秒
+                .repeatForever();
+
+
+        return TriggerBuilder.newTrigger().forJob(cacheFlushJob())
+                .withIdentity("cacheFlushJob")
                 .withSchedule(builder)
                 .build();
     }

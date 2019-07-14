@@ -72,6 +72,7 @@ public class PageController extends BaseController {
         contents.setStatus(status);
         contents.setSlug(slug);
         contents.setType(Types.PAGE.getType());
+        contents.setCommitType(ContentVo.COMMIT_TYPE_NORMAL);
         if (null != allowComment) {
             contents.setAllowComment(allowComment == 1);
         }
@@ -109,6 +110,7 @@ public class PageController extends BaseController {
         contents.setContent(content);
         contents.setStatus(status);
         contents.setSlug(slug);
+        contents.setCommitType(ContentVo.COMMIT_TYPE_NORMAL);
         if (null != allowComment) {
             contents.setAllowComment(allowComment == 1);
         }

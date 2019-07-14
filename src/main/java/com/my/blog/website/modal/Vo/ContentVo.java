@@ -76,7 +76,7 @@ public class ContentVo implements Serializable {
     /**
      * 1 - normal, 2 - github
      */
-    private Short commitType = COMMIT_TYPE_NORMAL;
+    private Short commitType;
 
     /**
      * 是否允许评论

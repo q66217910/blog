@@ -38,11 +38,11 @@ public interface IContentService {
      */
     ContentVo getContents(String id);
 
-    /**
-     * 根据主键更新
-     * @param contentVo contentVo
-     */
-    void updateContentByCid(ContentVo contentVo);
+//    /**
+//     * 根据主键更新
+//     * @param contentVo contentVo
+//     */
+//    void updateContentByCid(ContentVo contentVo);
 
 
     /**

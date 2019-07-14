@@ -1,25 +1,26 @@
 package com.my.blog.website.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.my.blog.website.constant.GlobalCache;
 import com.my.blog.website.constant.WebConst;
 import com.my.blog.website.dto.ErrorCode;
 import com.my.blog.website.dto.MetaDto;
 import com.my.blog.website.dto.Types;
 import com.my.blog.website.exception.TipException;
 import com.my.blog.website.modal.Bo.ArchiveBo;
+import com.my.blog.website.modal.Bo.CommentBo;
 import com.my.blog.website.modal.Bo.RestResponseBo;
 import com.my.blog.website.modal.Vo.CommentVo;
+import com.my.blog.website.modal.Vo.ContentVo;
 import com.my.blog.website.modal.Vo.MetaVo;
+import com.my.blog.website.service.ICommentService;
+import com.my.blog.website.service.IContentService;
 import com.my.blog.website.service.IMetaService;
 import com.my.blog.website.service.ISiteService;
+import com.my.blog.website.utils.IPKit;
 import com.my.blog.website.utils.PatternKit;
 import com.my.blog.website.utils.TaleUtils;
 import com.vdurmont.emoji.EmojiParser;
-import com.my.blog.website.modal.Bo.CommentBo;
-import com.my.blog.website.modal.Vo.ContentVo;
-import com.my.blog.website.service.ICommentService;
-import com.my.blog.website.service.IContentService;
-import com.my.blog.website.utils.IPKit;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +33,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * 首页
@@ -104,8 +102,9 @@ public class IndexController extends BaseController {
         }
         request.setAttribute("article", contents);
         request.setAttribute("is_post", true);
+        request.setAttribute("isGithub", Objects.equals(contents.getCommitType(), ContentVo.COMMIT_TYPE_GITHUB));
         completeArticle(request, contents);
-        updateArticleHit(contents.getCid(), contents.getHits());
+        updateArticleHit(contents.getCid());
         return this.render("post");
     }
 
@@ -124,8 +123,9 @@ public class IndexController extends BaseController {
         }
         request.setAttribute("article", contents);
         request.setAttribute("is_post", true);
+        request.setAttribute("isGithub", Objects.equals(contents.getCommitType(), ContentVo.COMMIT_TYPE_GITHUB));
         completeArticle(request, contents);
-        updateArticleHit(contents.getCid(), contents.getHits());
+        updateArticleHit(contents.getCid());
         return this.render("post");
     }
 
@@ -313,7 +313,7 @@ public class IndexController extends BaseController {
             request.setAttribute("comments", commentsPaginator);
         }
         request.setAttribute("article", contents);
-        updateArticleHit(contents.getCid(), contents.getHits());
+        updateArticleHit(contents.getCid());
         return this.render("page");
     }
 
@@ -343,24 +343,10 @@ public class IndexController extends BaseController {
      * 更新文章的点击率
      *
      * @param cid
-     * @param chits
      */
     @Transactional(rollbackFor = TipException.class)
-    private void updateArticleHit(Integer cid, Integer chits) {
-        Integer hits = cache.hget("article", "hits");
-        if (chits == null) {
-            chits = 0;
-        }
-        hits = null == hits ? 1 : hits + 1;
-        if (hits >= WebConst.HIT_EXCEED) {
-            ContentVo temp = new ContentVo();
-            temp.setCid(cid);
-            temp.setHits(chits + hits);
-            contentService.updateContentByCid(temp);
-            cache.hset("article", "hits", 1);
-        } else {
-            cache.hset("article", "hits", hits);
-        }
+    private void updateArticleHit(Integer cid) {
+        GlobalCache.hit(cid, getRequest());
     }
 
     /**

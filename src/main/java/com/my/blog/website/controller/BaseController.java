@@ -1,8 +1,9 @@
 package com.my.blog.website.controller;
 
 import com.my.blog.website.modal.Vo.UserVo;
-import com.my.blog.website.utils.TaleUtils;
 import com.my.blog.website.utils.MapCache;
+import com.my.blog.website.utils.TaleUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,6 +16,8 @@ public abstract class BaseController {
 
     protected MapCache cache = MapCache.single();
 
+    @Autowired(required = false)
+    HttpServletRequest request;
     /**
      * 主页的页面主题
      * @param viewName
@@ -49,6 +52,10 @@ public abstract class BaseController {
 
     public String render_404() {
         return "comm/error_404";
+    }
+
+    public HttpServletRequest getRequest() {
+        return request;
     }
 
 }
