@@ -38,6 +38,15 @@ public class SpringConfig {
     }
 
     @Bean
+    public Trigger githubQuartzJobBootTrigger() {
+        ScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(30).withRepeatCount(1);
+        return TriggerBuilder.newTrigger().forJob(githubQuartzJob())
+                .withIdentity("githubQuartzBootJob")
+                .withSchedule(builder)
+                .build();
+    }
+
+    @Bean
     public JobDetail cacheFlushJob () {
         return JobBuilder.newJob(CacheFlushJob.class).withIdentity("cacheFlushJob").storeDurably().build();
     }
