@@ -17,6 +17,7 @@ import com.my.blog.website.service.ICommentService;
 import com.my.blog.website.service.IContentService;
 import com.my.blog.website.service.IMetaService;
 import com.my.blog.website.service.ISiteService;
+import com.my.blog.website.utils.FileTool;
 import com.my.blog.website.utils.IPKit;
 import com.my.blog.website.utils.PatternKit;
 import com.my.blog.website.utils.TaleUtils;
@@ -33,6 +34,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Objects;
@@ -57,6 +60,17 @@ public class IndexController extends BaseController {
     @Resource
     private ISiteService siteService;
 
+    @GetMapping(value = {"robots.txt"})
+    @ResponseBody
+    public String robots(HttpServletRequest request, @RequestParam(value = "limit", defaultValue = "12") int limit) {
+        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("static/robots.txt");
+        try {
+            return FileTool.readAsString(resourceAsStream);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     /**
      * 首页
      *
@@ -67,6 +81,8 @@ public class IndexController extends BaseController {
 
         return this.index(request, 1, limit);
     }
+
+
 
     /**
      * 首页分页

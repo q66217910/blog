@@ -56,6 +56,19 @@ public class FileTool {
 	        return sb.toString();
         }
     }
+
+    public static String readAsString(InputStream inputStream) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))){
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sb.append("\n");
+                sb.append(line);
+            }
+            if (sb.length() > 0) sb.delete(0, 1);
+            return sb.toString();
+        }
+    }
 	
 	public static boolean isAbsolutePath (String path) {
 		if (path.startsWith("/")) return true;

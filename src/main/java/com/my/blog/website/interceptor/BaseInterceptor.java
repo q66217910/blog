@@ -1,12 +1,12 @@
 package com.my.blog.website.interceptor;
 
+import com.my.blog.website.constant.WebConst;
+import com.my.blog.website.dto.Types;
 import com.my.blog.website.modal.Vo.OptionVo;
 import com.my.blog.website.modal.Vo.UserVo;
 import com.my.blog.website.service.IOptionService;
 import com.my.blog.website.service.IUserService;
 import com.my.blog.website.utils.*;
-import com.my.blog.website.constant.WebConst;
-import com.my.blog.website.dto.Types;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +18,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +79,9 @@ public class BaseInterceptor implements HandlerInterceptor {
         	return true;
         }
         if (uri.startsWith("/git/webhoot")) {
+            return true;
+        }
+        if ("/robots.txt".equals(uri)) {
             return true;
         }
         if (uri.startsWith(adminPrefix) && !uri.startsWith(adminPrefix + "/login") && null == user) {

@@ -1,0 +1,8 @@
+# robots.txt generated at http://tool.chinaz.com/robots/
+User-agent: *
+Disallow:
+Crawl-delay: 300
+Disallow: /i**
+Disallow: /article/98974c62-8197-4b00-9a5a-179db69110b8
+Disallow: /article/f9c5e9a8-5440-4988-987d-de825315715c
+Disallow: /article/0596f471-c179-46b4-9efa-9ad3ae2522ce
