@@ -34,9 +34,12 @@
             <span style="vertical-align: middle; color: #6fa3ef;" th:text="${commons.site_option('site_motto', '')}"></span>
         </a>
         <div class="navbar-menu">
+
             <a th:href="${commons.site_url('/archives')}">归档</a>
             <a th:href="${commons.site_url('/links')}">友链</a>
             <a th:href="${commons.site_url('/about')}">关于</a>
+            <a th:href="${commons.site_option('site_github')}">GITHUB</a>
+            <a th:href="${commons.site_option('site_csdn')}">CSDN</a>
         </div>
         <div class="navbar-search" onclick="">
             <span class="icon-search"></span>

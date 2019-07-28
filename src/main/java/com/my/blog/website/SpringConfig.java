@@ -39,7 +39,7 @@ public class SpringConfig {
 
     @Bean
     public Trigger githubQuartzJobBootTrigger() {
-        ScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(30).withRepeatCount(1);
+        ScheduleBuilder builder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(90).withRepeatCount(1);
         return TriggerBuilder.newTrigger().forJob(githubQuartzJob())
                 .withIdentity("githubQuartzBootJob")
                 .withSchedule(builder)

@@ -3,11 +3,11 @@ package com.my.blog.website.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.my.blog.website.constant.WebConst;
+import com.my.blog.website.dao.ContentVoMapper;
 import com.my.blog.website.dao.MetaVoMapper;
 import com.my.blog.website.dto.Types;
 import com.my.blog.website.exception.TipException;
-import com.my.blog.website.modal.Vo.ContentVo;
-import com.my.blog.website.modal.Vo.ContentVoExample;
+import com.my.blog.website.modal.Vo.*;
 import com.my.blog.website.service.IContentService;
 import com.my.blog.website.service.IMetaService;
 import com.my.blog.website.service.IRelationshipService;
@@ -15,7 +15,6 @@ import com.my.blog.website.utils.DateKit;
 import com.my.blog.website.utils.TaleUtils;
 import com.my.blog.website.utils.Tools;
 import com.vdurmont.emoji.EmojiParser;
-import com.my.blog.website.dao.ContentVoMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,13 +110,9 @@ public class ContentServiceImpl implements IContentService {
     @Override
     public ContentVo getContents(String id) {
         if (StringUtils.isNotBlank(id)) {
+            ContentVo contentVo = null;
             if (Tools.isNumber(id)) {
-                ContentVo contentVo = contentDao.selectByPrimaryKey(Integer.valueOf(id));
-                if (contentVo != null) {
-                    contentVo.setHits(contentVo.getHits() + 1);
-                    contentDao.updateByPrimaryKey(contentVo);
-                }
-                return contentVo;
+                contentVo = contentDao.selectByPrimaryKey(Integer.valueOf(id));
             } else {
                 ContentVoExample contentVoExample = new ContentVoExample();
                 contentVoExample.createCriteria().andSlugEqualTo(id);
@@ -125,10 +120,32 @@ public class ContentServiceImpl implements IContentService {
                 if (contentVos.size() != 1) {
                     throw new TipException("query content by id and return is not one");
                 }
-                return contentVos.get(0);
+                contentVo = contentVos.get(0);
             }
+
+            if (contentVo != null) {
+                setMetas(contentVo);
+            }
+            return contentVo;
         }
         return null;
+    }
+
+    private void setMetas(ContentVo contentVo) {
+        List<MetaVo> metas = metasService.getMetas(contentVo.getCid());
+        StringBuilder categories = new StringBuilder();
+        StringBuilder tags = new StringBuilder();
+        for (MetaVo meta : metas) {
+            if (Types.TAG.getType().equals(meta.getType())) {
+                tags.append(",").append(meta.getName());
+            } else if (Types.CATEGORY.getType().equals(meta.getType())) {
+                categories.append(",").append(meta.getName());
+            }
+        }
+        if (categories.length() > 0) categories.delete(0, 1);
+        if (tags.length() > 0) tags.delete(0, 1);
+        contentVo.setTags(tags.toString());
+        contentVo.setCategories(categories.toString());
     }
 
 //    @Override
@@ -165,6 +182,9 @@ public class ContentServiceImpl implements IContentService {
     public PageInfo<ContentVo> getArticlesWithpage(ContentVoExample commentVoExample, Integer page, Integer limit) {
         PageHelper.startPage(page, limit);
         List<ContentVo> contentVos = contentDao.selectByExampleWithBLOBs(commentVoExample);
+        for (ContentVo contentVo : contentVos) {
+            setMetas(contentVo);
+        }
         return new PageInfo<>(contentVos);
     }
 
@@ -227,7 +247,7 @@ public class ContentServiceImpl implements IContentService {
 
         contentDao.updateByPrimaryKeySelective(contentVo);
         relationshipService.deleteById(cid, null);
-        metasService.saveMetas(cid, contentVo.getTags(), Types.TAG.getType());
-        metasService.saveMetas(cid, contentVo.getCategories(), Types.CATEGORY.getType());
+        metasService.saveMetas(cid, modifyForm.getTags(), Types.TAG.getType());
+        metasService.saveMetas(cid, modifyForm.getCategories(), Types.CATEGORY.getType());
     }
 }
