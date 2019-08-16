@@ -98,7 +98,8 @@ public class ContentServiceImpl implements IContentService {
     public PageInfo<ContentVo> getContents(Integer p, Integer limit) {
         LOGGER.debug("Enter getContents method");
         ContentVoExample example = new ContentVoExample();
-        example.setOrderByClause("rank desc, created desc");
+        // 9331200 =  86400 * 108
+        example.setOrderByClause("(rank - rank * pow(0.9, 25 / pow((UNIX_TIMESTAMP(now()) - created) / 9331200, 0.2))) desc, created desc");
         example.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
         PageHelper.startPage(p, limit);
         List<ContentVo> data = contentDao.selectByExampleWithBLOBs(example);
