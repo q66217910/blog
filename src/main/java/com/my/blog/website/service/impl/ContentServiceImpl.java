@@ -95,12 +95,15 @@ public class ContentServiceImpl implements IContentService {
     }
 
     @Override
-    public PageInfo<ContentVo> getContents(Integer p, Integer limit) {
+    public PageInfo<ContentVo> getContents(Integer p, Integer limit, Boolean showShadow) {
         LOGGER.debug("Enter getContents method");
         ContentVoExample example = new ContentVoExample();
         // 9331200 =  86400 * 108
         example.setOrderByClause("(rank - rank * pow(0.9, 25 / pow((UNIX_TIMESTAMP(now()) - created) / 9331200, 0.2))) desc, created desc");
-        example.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
+        ContentVoExample.Criteria criteria = example.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
+        if (showShadow == null || !showShadow) {
+            criteria.andIsShadowEqualTo(false);
+        }
         PageHelper.startPage(p, limit);
         List<ContentVo> data = contentDao.selectByExampleWithBLOBs(example);
         PageInfo<ContentVo> pageInfo = new PageInfo<>(data);
@@ -167,13 +170,14 @@ public class ContentServiceImpl implements IContentService {
     }
 
     @Override
-    public PageInfo<ContentVo> getArticles(String keyword, Integer page, Integer limit) {
+    public PageInfo<ContentVo> getArticles(String keyword, Integer page, Integer limit, boolean showShadow) {
         PageHelper.startPage(page, limit);
         ContentVoExample contentVoExample = new ContentVoExample();
         ContentVoExample.Criteria criteria = contentVoExample.createCriteria();
         criteria.andTypeEqualTo(Types.ARTICLE.getType());
         criteria.andStatusEqualTo(Types.PUBLISH.getType());
         criteria.andTitleLike("%" + keyword + "%");
+        if (!showShadow) criteria.andIsShadowEqualTo(false);
         contentVoExample.setOrderByClause("created desc");
         List<ContentVo> contentVos = contentDao.selectByExampleWithBLOBs(contentVoExample);
         return new PageInfo<>(contentVos);

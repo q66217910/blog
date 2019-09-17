@@ -27,7 +27,7 @@ public interface IContentService {
      * @param limit 每页条数
      * @return ContentVo
      */
-    PageInfo<ContentVo> getContents(Integer p, Integer limit);
+    PageInfo<ContentVo> getContents(Integer p, Integer limit, Boolean showShadow);
 
 
     /**
@@ -61,7 +61,7 @@ public interface IContentService {
      * @param limit limit
      * @return ContentVo
      */
-    PageInfo<ContentVo> getArticles(String keyword,Integer page,Integer limit);
+    PageInfo<ContentVo> getArticles(String keyword,Integer page,Integer limit, boolean showShadow);
 
 
     /**

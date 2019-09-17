@@ -77,9 +77,9 @@ public class IndexController extends BaseController {
      * @return
      */
     @GetMapping(value = {"/", "index"})
-    public String index(HttpServletRequest request, @RequestParam(value = "limit", defaultValue = "12") int limit) {
-
-        return this.index(request, 1, limit);
+    public String index(HttpServletRequest request, @RequestParam(value = "limit", defaultValue = "12") int limit, @RequestParam(required = false) Boolean showShadow) {
+        if (showShadow == null) showShadow = false;
+        return this.index(request, 1, limit, showShadow);
     }
 
 
@@ -92,15 +92,29 @@ public class IndexController extends BaseController {
      * @param limit   每页大小
      * @return 主页
      */
-    @GetMapping(value = "page/{p}")
-    public String index(HttpServletRequest request, @PathVariable int p, @RequestParam(value = "limit", defaultValue = "12") int limit) {
+    @GetMapping(value = {"page/{p}", "shadow/page/{p}"})
+    public String index(HttpServletRequest request, @PathVariable int p, @RequestParam(value = "limit", defaultValue = "12") int limit, @RequestParam(required = false) Boolean showShadow) {
         p = p < 0 || p > WebConst.MAX_PAGE ? 1 : p;
-        PageInfo<ContentVo> articles = contentService.getContents(p, limit);
+        String path = getPath(request);
+        System.out.println(path);
+        if (path != null && path.startsWith("/shadow")) {
+            showShadow = true;
+        }
+        PageInfo<ContentVo> articles = contentService.getContents(p, limit, showShadow);
         request.setAttribute("articles", articles);
+        request.setAttribute("showShadow", showShadow);
         if (p > 1) {
             this.title(request, "第" + p + "页");
         }
         return this.render("index");
+    }
+
+    private String getPath(HttpServletRequest request) {
+        String path = request.getServletPath();
+        if (request.getPathInfo() != null) {
+            path += request.getPathInfo();
+        }
+        return path;
     }
 
     /**
@@ -341,14 +355,17 @@ public class IndexController extends BaseController {
      * @return
      */
     @GetMapping(value = "search/{keyword}")
-    public String search(HttpServletRequest request, @PathVariable String keyword, @RequestParam(value = "limit", defaultValue = "12") int limit) {
-        return this.search(request, keyword, 1, limit);
+    public String search(HttpServletRequest request, @PathVariable String keyword, @RequestParam(value = "limit", defaultValue = "12") int limit,
+                         @RequestParam(required = false) Boolean showShadow) {
+        return this.search(request, keyword, 1, limit, showShadow);
     }
 
     @GetMapping(value = "search/{keyword}/{page}")
-    public String search(HttpServletRequest request, @PathVariable String keyword, @PathVariable int page, @RequestParam(value = "limit", defaultValue = "12") int limit) {
+    public String search(HttpServletRequest request, @PathVariable String keyword, @PathVariable int page,
+                         @RequestParam(value = "limit", defaultValue = "12") int limit, @RequestParam(required = false) Boolean showShadow) {
         page = page < 0 || page > WebConst.MAX_PAGE ? 1 : page;
-        PageInfo<ContentVo> articles = contentService.getArticles(keyword, page, limit);
+        if (showShadow == null) showShadow = false;
+        PageInfo<ContentVo> articles = contentService.getArticles(keyword, page, limit, showShadow);
         request.setAttribute("articles", articles);
         request.setAttribute("type", "搜索");
         request.setAttribute("keyword", keyword);

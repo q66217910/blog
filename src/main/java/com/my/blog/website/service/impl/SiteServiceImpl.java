@@ -182,7 +182,10 @@ public class SiteServiceImpl implements ISiteService {
         if (null != archives) {
             archives.forEach(archive -> {
                 ContentVoExample example = new ContentVoExample();
-                ContentVoExample.Criteria criteria = example.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
+                ContentVoExample.Criteria criteria = example.createCriteria()
+                        .andTypeEqualTo(Types.ARTICLE.getType())
+                        .andStatusEqualTo(Types.PUBLISH.getType())
+                        .andIsShadowEqualTo(false);
                 example.setOrderByClause("created desc");
                 String date = archive.getDate();
                 Date sd = DateKit.dateFormat(date, "yyyy年MM月");

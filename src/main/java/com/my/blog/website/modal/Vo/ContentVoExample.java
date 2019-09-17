@@ -15,7 +15,7 @@ public class ContentVoExample {
     private Integer offset;
 
     public ContentVoExample() {
-        oredCriteria = new ArrayList<Criteria>();
+        oredCriteria = new ArrayList<>();
     }
 
     public void setOrderByClause(String orderByClause) {
@@ -56,9 +56,8 @@ public class ContentVoExample {
         return criteria;
     }
 
-    protected Criteria createCriteriaInternal() {
-        Criteria criteria = new Criteria();
-        return criteria;
+    private Criteria createCriteriaInternal() {
+        return new Criteria();
     }
 
     public void clear() {
@@ -83,12 +82,13 @@ public class ContentVoExample {
         return offset;
     }
 
+    @SuppressWarnings({"UnusedReturnValue", "unused"})
     protected abstract static class GeneratedCriteria {
         protected List<Criterion> criteria;
 
-        protected GeneratedCriteria() {
+        GeneratedCriteria() {
             super();
-            criteria = new ArrayList<Criterion>();
+            criteria = new ArrayList<>();
         }
 
         public boolean isValid() {
@@ -103,21 +103,21 @@ public class ContentVoExample {
             return criteria;
         }
 
-        protected void addCriterion(String condition) {
+        void addCriterion(String condition) {
             if (condition == null) {
                 throw new RuntimeException("Value for condition cannot be null");
             }
             criteria.add(new Criterion(condition));
         }
 
-        protected void addCriterion(String condition, Object value, String property) {
+        void addCriterion(String condition, Object value, String property) {
             if (value == null) {
                 throw new RuntimeException("Value for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value));
         }
 
-        protected void addCriterion(String condition, Object value1, Object value2, String property) {
+        void addCriterion(String condition, Object value1, Object value2, String property) {
             if (value1 == null || value2 == null) {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
@@ -1083,6 +1083,11 @@ public class ContentVoExample {
             addCriterion("allow_feed not between", value1, value2, "allowFeed");
             return (Criteria) this;
         }
+
+        public Criteria andIsShadowEqualTo(Boolean value) {
+            addCriterion("is_shadow = ", value, "isShadow");
+            return (Criteria) this;
+        }
     }
 
     /**
@@ -1094,6 +1099,7 @@ public class ContentVoExample {
         }
     }
 
+    @SuppressWarnings("unused")
     public static class Criterion {
         private String condition;
 
@@ -1110,6 +1116,8 @@ public class ContentVoExample {
         private boolean listValue;
 
         private String typeHandler;
+
+        private boolean isShadow;
 
         public String getCondition() {
             return condition;
@@ -1143,14 +1151,22 @@ public class ContentVoExample {
             return typeHandler;
         }
 
-        protected Criterion(String condition) {
+        public boolean isShadow() {
+            return isShadow;
+        }
+
+        public void setShadow(boolean shadow) {
+            isShadow = shadow;
+        }
+
+        Criterion(String condition) {
             super();
             this.condition = condition;
             this.typeHandler = null;
             this.noValue = true;
         }
 
-        protected Criterion(String condition, Object value, String typeHandler) {
+        Criterion(String condition, Object value, String typeHandler) {
             super();
             this.condition = condition;
             this.value = value;
@@ -1162,11 +1178,11 @@ public class ContentVoExample {
             }
         }
 
-        protected Criterion(String condition, Object value) {
+        Criterion(String condition, Object value) {
             this(condition, value, null);
         }
 
-        protected Criterion(String condition, Object value, Object secondValue, String typeHandler) {
+        Criterion(String condition, Object value, Object secondValue, String typeHandler) {
             super();
             this.condition = condition;
             this.value = value;
@@ -1175,7 +1191,7 @@ public class ContentVoExample {
             this.betweenValue = true;
         }
 
-        protected Criterion(String condition, Object value, Object secondValue) {
+        Criterion(String condition, Object value, Object secondValue) {
             this(condition, value, secondValue, null);
         }
     }

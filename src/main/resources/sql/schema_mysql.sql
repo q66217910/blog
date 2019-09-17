@@ -54,14 +54,15 @@ CREATE TABLE IF NOT EXISTS `t_contents` (
     `allow_ping` tinyint(1) DEFAULT NULL,
     `allow_feed` tinyint(1) DEFAULT NULL,
     `rank` INT(11) NULL DEFAULT 100,
+    `is_shadow` bit NOT NULL DEFAULT 0,
     PRIMARY KEY (`cid`),
     UNIQUE KEY `uk_blog_number` (`commit_type` ASC, `blog_number` ASC),
     INDEX `idx_commit_type` (`commit_type` ASC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `t_contents` VALUES 
-(1,'关于','about',NULL,1487853610,1487872488,'### Hello World\n\n这是我的关于页面\n\n### 当然还有其他\n\n具体你来写点什么吧',1,'page','publish','markdown',NULL,NULL,0,0,NULL,1,1,1,1,100),
-(3,'友情链接','links',NULL,1487861184,1487861184,'## 友情链接\n\n## 链接须知\n\n> 请确定贵站可以稳定运营\n> 原创博客优先，技术类博客优先\n> 经常过来访问和评论，眼熟的\n\n备注：默认申请友情链接均为内页（当前页面）\n\n## 基本信息\n\n请在当页通过评论来申请友链，其他地方不予回复\n\n暂时先这样，同时欢迎互换友链，这个页面留言即可。 ^_^\n\n还有，我会不定时对无法访问的网址进行清理，请保证自己的链接长期有效。',1,'page','publish','markdown',NULL,NULL,0,0,NULL,1,1,1,0,100);
+(1,'关于','about',NULL,1487853610,1487872488,'### Hello World\n\n这是我的关于页面\n\n### 当然还有其他\n\n具体你来写点什么吧',1,'page','publish','markdown',NULL,NULL,0,0,NULL,1,1,1,1,60,0),
+(3,'友情链接','links',NULL,1487861184,1487861184,'## 友情链接\n\n## 链接须知\n\n> 请确定贵站可以稳定运营\n> 原创博客优先，技术类博客优先\n> 经常过来访问和评论，眼熟的\n\n备注：默认申请友情链接均为内页（当前页面）\n\n## 基本信息\n\n请在当页通过评论来申请友链，其他地方不予回复\n\n暂时先这样，同时欢迎互换友链，这个页面留言即可。 ^_^\n\n还有，我会不定时对无法访问的网址进行清理，请保证自己的链接长期有效。',1,'page','publish','markdown',NULL,NULL,0,0,NULL,1,1,1,0,60,0);
 
 -- 表：t_logs
 CREATE TABLE IF NOT EXISTS `t_logs`(
@@ -104,7 +105,7 @@ INSERT INTO t_options (name, value, description) VALUES ('social_twitter', '', N
 INSERT INTO t_options (name, value, description) VALUES ('allow_install', '0', '是否允许重新安装博客');
 INSERT INTO t_options (name, value, description) VALUES ('site_theme', 'default', NULL);
 INSERT INTO t_options (name, value, description) VALUES ('site_keywords', 'uetty,悲回风,vincent_field', NULL);
-INSERT INTO t_options (name, value, description) VALUES ('site_description', '自16毕业已有3年，偶有收获，常作文以记，时常复习', NULL);
+INSERT INTO t_options (name, value, description) VALUES ('site_description', '个人博客', NULL);
 
 -- 表：t_relationships
 CREATE TABLE IF NOT EXISTS `t_relationships`(
