@@ -64,4 +64,32 @@ public class StringUtil {
 		str = str.trim();
 		return str.contains("://") || str.startsWith("https://") || str.startsWith("http://");
 	}
+
+	public static String trimStart(String str) {
+		if (str == null) {
+			return str;
+		}
+
+		Pattern pattern = Pattern.compile("^\\s+");
+		Matcher matcher = pattern.matcher(str);
+		if (matcher.find()) {
+			String group = matcher.group();
+			return str.substring(group.length());
+		}
+		return str;
+	}
+
+	public static String trimEnd(String str) {
+		if (str == null) {
+			return str;
+		}
+
+		Pattern pattern = Pattern.compile("\\s+$");
+		Matcher matcher = pattern.matcher(str);
+		if (matcher.find()) {
+			String group = matcher.group();
+			return str.substring(0, str.length() - group.length());
+		}
+		return str;
+	}
 }

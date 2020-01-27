@@ -145,7 +145,7 @@ public class MetaServiceImpl implements IMetaService {
         if (StringUtils.isNotBlank(names) && StringUtils.isNotBlank(type)) {
             String[] nameArr = StringUtils.split(names, ",");
             for (String name : nameArr) {
-                this.saveOrUpdate(cid, name, type);
+                this.saveOrUpdate(cid, name.trim(), type);
             }
         }
     }

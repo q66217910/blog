@@ -98,6 +98,8 @@ public class ContentVo implements Serializable {
      */
     private String content;
 
+    private Boolean isShadow = false;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getCid() {
@@ -242,5 +244,15 @@ public class ContentVo implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setIsShadow(Boolean isShadow) {
+        if (isShadow != null) {
+            this.isShadow = isShadow;
+        }
+    }
+
+    public Boolean getIsShadow() {
+        return isShadow;
     }
 }

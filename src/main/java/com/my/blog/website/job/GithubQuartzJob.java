@@ -11,7 +11,6 @@ import com.my.blog.website.utils.*;
 import com.vdurmont.emoji.EmojiParser;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +21,35 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class GithubQuartzJob extends QuartzJobBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(GithubQuartzJob.class);
 
     @Autowired
-    ContentVoMapper contentVoMapper;
+    private ContentVoMapper contentVoMapper;
     @Autowired
-    IMetaService metasService;
+    private IMetaService metasService;
 
     @Value("${file.path}/git")
-    String savePath;
+    private String savePath;
     @Autowired
-    GithubConst githubConst;
+    private GithubConst githubConst;
 
-    String PROP_REGEX = "([a-zA-Z-]+)=\"(.*?)\"";
-    String NAME_REGEX = "<a.*?>(.*)</a>";
+    private long lastExecuted = 0L;
+    private boolean isExecuting = false;
+    private SimpleDateFormat readDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat slugDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-
+    @SuppressWarnings("UnusedReturnValue")
     private File unzipToFolder(File zipFile, File targetFolder) throws IOException {
         File tempFolder = null;
         try {
@@ -54,7 +58,7 @@ public class GithubQuartzJob extends QuartzJobBean {
 
             File[] listFiles = tempFolder.listFiles();
             if (listFiles == null || listFiles.length != 1) {
-                LOG.error("some error occur on download zip file. {}", listFiles);
+                LOG.error("some error occur on download zip file. child files is {}", listFiles == null ? "null" : "[]");
                 return null;
             }
             FileTool.deleteFiles(targetFolder);
@@ -69,12 +73,12 @@ public class GithubQuartzJob extends QuartzJobBean {
 
     private String getDateStr () {
         Calendar c = Calendar.getInstance();
-        return String.format("%04d%02d$02d-%02d%02d", c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1,
+        return String.format("%04d%02d%02d-%02d%02d", c.get(Calendar.YEAR), c.get(Calendar.MONTH) + 1,
                 c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE));
     }
 
     private String randomName () {
-        return UUID.randomUUID().toString().substring(23) + "-" + getDateStr();
+        return UUID.randomUUID().toString().substring(24) + "-" + getDateStr();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -82,6 +86,13 @@ public class GithubQuartzJob extends QuartzJobBean {
         FileOutputStream fos = null;
         File file;
         try {
+            try {
+                LOG.info("preheat git download url");
+                HttpClientUtil.doGetLoad(githubConst.getPreUrl(), null, null);
+            } catch (Exception ignore) {
+            }
+
+            LOG.info("download git repository");
             HttpClientUtil.HttpResponseVo responseVo = HttpClientUtil.doGetLoad(githubConst.getUrl(), null, null);
             InputStream inputStream = responseVo.getInputStream();
             if (inputStream == null) throw new RuntimeException("DOWNLOAD FAILED");
@@ -108,9 +119,16 @@ public class GithubQuartzJob extends QuartzJobBean {
         return file;
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+    protected void executeInternal(JobExecutionContext context) {
+        synchronized (GithubQuartzJob.class) {
+            if (isExecuting && System.currentTimeMillis() - lastExecuted < 5 * 60 * 1000) {
+                return;
+            }
+            lastExecuted = System.currentTimeMillis();
+            isExecuting = true;
+        }
+
         LOG.debug("EXECUTE GITHUB BLOG UPDATE");
         File zipFile = null;
         try {
@@ -119,14 +137,11 @@ public class GithubQuartzJob extends QuartzJobBean {
             File file = new File(savePath + "/" + githubConst.getName());
             unzipToFolder(zipFile, file);
 
-            List<GithubArticle> githubArticles = readGithubArticleList(file);
+            List<GithubArticle> githubArticles = readGithubArticles(file);
             if (githubArticles == null) {
                 LOG.warn("github article not found");
                 return;
             }
-
-            githubArticles = githubArticles.stream().filter(article -> !article.ignore && StringUtil.isNotBlank(article.blogId))
-                    .collect(Collectors.toList());
 
             // changed id
             List<GithubArticle> changeList = new ArrayList<>(githubArticles).stream().filter(article -> StringUtil.isNotBlank(article.originId)).collect(Collectors.toList());
@@ -141,20 +156,22 @@ public class GithubQuartzJob extends QuartzJobBean {
                             break;
                         }
                     }
-                    contentVo.setBlogNumber(Objects.requireNonNull(article).blogId);
+                    contentVo.setBlogNumber(Objects.requireNonNull(article).rid);
                     contentVoMapper.updateByPrimaryKey(contentVo);
                 }
             }
 
             // delete not exist
-            List<String> currentBlogIds = githubArticles.stream().map(article -> article.blogId).collect(Collectors.toList());
-            contentVoMapper.deleteByBlogNumberNotIn(currentBlogIds);
+            List<String> currentBlogIds = githubArticles.stream().map(article -> article.rid).collect(Collectors.toList());
+            if (currentBlogIds.size() > 0) {
+                contentVoMapper.deleteByBlogNumberNotIn(currentBlogIds);
+            }
 
             List<GithubArticle> cloneArticles = new ArrayList<>(githubArticles);
             githubArticles.forEach(article -> {
                 try {
-                    ContentVo contentVo = contentVoMapper.selectByBlogNumberWithBLOBs(article.blogId);
-                    readFileContent(article, cloneArticles);
+                    ContentVo contentVo = contentVoMapper.selectByBlogNumberWithBLOBs(article.rid);
+                    resolveFileContent(article, cloneArticles);
 
                     if (contentVo != null) {
                         updateContent(contentVo, article);
@@ -183,12 +200,13 @@ public class GithubQuartzJob extends QuartzJobBean {
             LOG.error(e.getMessage(), e);
         } finally {
             FileTool.deleteFiles(zipFile);
+            isExecuting = false;
         }
     }
 
     private void replaceContentRef (GithubArticle art, List<ContentVo> refBlogList) {
         try {
-            ContentVo contentVo = contentVoMapper.selectByBlogNumberWithBLOBs(art.blogId);
+            ContentVo contentVo = contentVoMapper.selectByBlogNumberWithBLOBs(art.rid);
             String content = contentVo.getContent();
             if (content == null) return;
             for (String refId : art.refIdSet) {
@@ -208,15 +226,22 @@ public class GithubQuartzJob extends QuartzJobBean {
 
     private void createContent(GithubArticle article) {
         ContentVo contents = new ContentVo();
-        contents.setTitle(article.blogName);
+        contents.setTitle(article.title);
         contents.setContent(article.content);
         contents.setAuthorId(githubConst.getAuthorId());
-        contents.setSlug(UUID.randomUUID().toString());
+        contents.setSlug(article.permalink);
+        contents.setIsShadow(article.isShadow);
+        contents.setTags(String.join(",", article.keywords.toArray(new String[0])));
+        if (article.tags != null) {
+            contents.setCategories(article.tags);
+        } else {
+            contents.setCategories("默认分类");
+        }
+        contents.setCreated(DateKit.getUnixTimeByDate(article.createTime));
+        contents.setBlogNumber(article.rid);
         contents.setCommitType(ContentVo.COMMIT_TYPE_GITHUB);
-        contents.setBlogNumber(article.blogId);
         contents.setType(Types.ARTICLE.getType());
         contents.setStatus(Types.PUBLISH.getType());
-        contents.setCategories("默认分类");
         contents.setAllowComment(true);
         contents.setAllowPing(true);
         contents.setAllowFeed(true);
@@ -251,7 +276,6 @@ public class GithubQuartzJob extends QuartzJobBean {
         contents.setContent(EmojiParser.parseToAliases(contents.getContent()));
 
         int time = DateKit.getCurrentUnixTime();
-        contents.setCreated(time);
         contents.setModified(time);
         contents.setCommentsNum(0);
         contents.setHits(0);
@@ -269,15 +293,15 @@ public class GithubQuartzJob extends QuartzJobBean {
         return "<ref=" + refId + ">";
     }
 
-    private void readFileContent(GithubArticle article, List<GithubArticle> possibleRefArticle) throws IOException {
+    private void resolveFileContent(GithubArticle article, List<GithubArticle> possibleRefArticle) throws IOException {
         File file = new File(article.path);
         File parentFile = file.getParentFile();
 
 
-        String s1 = FileTool.readAsString(file);
+        String s1 = article.content;
         StringBuilder sb = new StringBuilder().append(s1);
 
-        Pattern linkPatter = Pattern.compile("\\[(.*?)\\]\\([<]?(.*?)[>]?\\)");
+        Pattern linkPatter = Pattern.compile("\\[(.*?)]\\([<]?(.*?)[>]?\\)");
         Matcher matcher = linkPatter.matcher(sb.toString());
         Map<String, String> attachMap = new HashMap<>();
         Map<String, String> refMap = new HashMap<>();
@@ -291,7 +315,7 @@ public class GithubQuartzJob extends QuartzJobBean {
             for (GithubArticle ref : possibleRefArticle) {
                 File file1 = new File(ref.path);
                 if (FileTool.fileEquals(linkFile, file1)) {
-                    refId = ref.blogId;
+                    refId = ref.rid;
                     break;
                 }
             }
@@ -337,62 +361,237 @@ public class GithubQuartzJob extends QuartzJobBean {
 
 
     private void updateContent(ContentVo contentVo, GithubArticle article) {
-        contentVo.setTitle(article.blogName);
+        contentVo.setTitle(article.title);
         contentVo.setContent(article.content);
+        contentVo.setAuthorId(githubConst.getAuthorId());
+        contentVo.setSlug(article.permalink);
+        contentVo.setIsShadow(article.isShadow);
+        contentVo.setCreated(DateKit.getUnixTimeByDate(article.createTime));
+
+        String tags = String.join(",", article.keywords.toArray(new String[0]));
+        boolean updateTags = !Objects.equals(tags, contentVo.getTags());
+        contentVo.setTags(tags);
+
+        String categories;
+        if (article.tags != null) {
+            categories = article.tags;
+        } else {
+            categories = "默认分类";
+        }
+        boolean updateCategories = !Objects.equals(categories, contentVo.getCategories());
+        contentVo.setCategories(categories);
+
         contentVoMapper.updateByPrimaryKeyWithBLOBs(contentVo);
+
+        if (updateTags) {
+            metasService.saveMetas(contentVo.getCid(), tags, Types.TAG.getType());
+        }
+        if (updateCategories) {
+            metasService.saveMetas(contentVo.getCid(), categories, Types.CATEGORY.getType());
+        }
     }
 
-    private List<GithubArticle> readGithubArticleList(File blogFolder) throws IOException {
-        File[] files = blogFolder.listFiles();
-        if (files == null) return null;
-        File indexFile = null;
-        for (File f : files) {
-            if (Objects.equals(f.getName(), githubConst.getIndexName())) {
-                indexFile = f;
-                break;
-            }
-        }
-        if (indexFile == null) return null;
-
+    private List<GithubArticle> readGithubArticles(File blogGitSourceFolder) throws IOException, ParseException {
         List<GithubArticle> list = new ArrayList<>();
 
-        String string = FileTool.readAsString(indexFile);
-        Pattern pp = Pattern.compile(PROP_REGEX);
-        Pattern bp = Pattern.compile(NAME_REGEX);
-        String folder = blogFolder.getAbsolutePath();
-        HtmlUtil.tagReplace(string, "a", (fullTag, headTag) -> {
-            Matcher matcher = pp.matcher(fullTag);
-            GithubArticle article = new GithubArticle();
-            while (matcher.find()) {
-                String name = matcher.group(1);
-                String value = matcher.group(2);
-                if (name == null) continue;
-                if (Objects.equals(name, githubConst.getArticleIdProp())) {
-                    article.blogId = value;
-                } else if (Objects.equals(name, githubConst.getOriginIdProp())) {
-                    article.originId = value;
-                } else if (Objects.equals(name, githubConst.getPathProp())) {
-                    article.path = folder + "/" + value;
-                }
+        File postFolder = new File(blogGitSourceFolder, githubConst.getPostFolderName());
+        if (!postFolder.exists()) {
+            throw new RuntimeException("post folder not found");
+        }
+
+        File[] files = postFolder.listFiles();
+        if (files == null) {
+            return list;
+        }
+
+        for (File child : files) {
+            GithubArticle article = getArticle(child);
+            if (article != null) {
+                article.path = child.getAbsolutePath();
+                list.add(article);
             }
-            Matcher matcher2 = bp.matcher(fullTag);
-            if (matcher2.find()) {
-                article.blogName = matcher2.group(1);
-            }
-            article.ignore = headTag.contains(githubConst.getIgnoreProp());
-            list.add(article);
-            return fullTag;
-        });
+        }
+
         return list;
     }
 
+    private GithubArticle getArticle(File articleFile) throws IOException, ParseException {
+        String string = FileTool.readAsString(articleFile);
+        string = StringUtil.trimStart(string);
+
+        return analyzeContent(string);
+    }
+
+    private String[] splitFirst(String string, String separator) {
+        int i = string.indexOf(separator);
+        if (i != -1) {
+            String[] arr = new String[2];
+            arr[0] = string.substring(0, i);
+            arr[1] = string.substring(i + separator.length());
+            return arr;
+        } else {
+            String[] arr = new String[1];
+            arr[0] = string;
+            return arr;
+        }
+    }
+
+    private GithubArticle analyzeContent(String string) throws ParseException {
+        GithubArticle article = new GithubArticle();
+
+        int i = lookLineEnd(string);
+        if (i == -1) {
+            throw new RuntimeException("analyze content failed");
+        }
+        String line = string.substring(0, i);
+        if (!isDescriptSeparatorLine(line)) {
+            throw new RuntimeException("analyze content failed");
+        }
+        string = string.substring(i + 1);
+        List<String> descriptLines = new ArrayList<>();
+        while (string.length() > 0) {
+            i = lookLineEnd(string);
+            if (i == -1) {
+                break;
+            }
+            line = string.substring(0, i);
+            string = string.substring(i + 1);
+
+            if (isDescriptSeparatorLine(line)) {
+                article.content  = StringUtil.trimStart(string);
+                break;
+            }
+            descriptLines.add(line);
+        }
+
+        if (article.content == null) {
+            throw new RuntimeException("analyze content failed");
+        }
+
+        for (String desLine : descriptLines) {
+            String[] split = splitFirst(desLine, ":");
+            if (split.length == 2) {
+                String key = split[0].trim();
+                String value = split[1].trim();
+                if (Objects.equals(key, githubConst.getAttrTitle())) {
+                    value = value.replace("\\ ", " ");
+                    article.title = value;
+                } else if (Objects.equals(key, githubConst.getAttrDate())) {
+                    article.createTime = readDateFormat.parse(value);
+                } else if (Objects.equals(key, githubConst.getAttrTag())) {
+                    article.tags = value;
+                } else if (Objects.equals(key, githubConst.getAttrPermalink())) {
+                    article.permalink = value;
+                } else if (Objects.equals(key, githubConst.getAttrKeywords())) {
+                    String[] keywords = value.split(",");
+                    for (String keyword : keywords) {
+                        if (StringUtil.isNotBlank(keyword)) {
+                            article.keywords.add(keyword.trim());
+                        }
+                    }
+                } else if (Objects.equals(key, githubConst.getAttrRid())) {
+                    article.rid = value;
+                } else if (Objects.equals(key, githubConst.getAttrOriginId())) {
+                    article.originId = value;
+                } else if (Objects.equals(key, githubConst.getAttrShadow())) {
+                    article.isShadow = Objects.equals("true", value);
+                }
+            }
+        }
+
+        System.out.println("title: " + article.title);
+        System.out.println("createTime: " + article.createTime);
+        System.out.println("rid: " + article.rid);
+        if (StringUtil.isBlank(article.title)
+                || article.createTime == null || StringUtil.isBlank(article.rid)) {
+            LOG.warn("article info incomplete");
+            return null;
+        }
+        if (article.permalink != null) {
+            article.permalink = slugDateFormat.format(article.createTime) + "-" + article.permalink;
+        }
+        return article;
+    }
+
+    private int lookLineEnd(String string) {
+        return string.indexOf('\n');
+    }
+
+    private boolean isDescriptSeparatorLine(String line) {
+        if (line.length() < 3) {
+            return false;
+        }
+        line = StringUtil.trimEnd(line);
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) != '-') {
+                return false;
+            }
+        }
+        return true;
+    }
+//    private List<GithubArticle> readGithubArticleList(File blogFolder) throws IOException {
+//        File[] files = blogFolder.listFiles();
+//        if (files == null) return null;
+//        File postFolder = null;
+//        for (File f : files) {
+//            if (Objects.equals(f.getName(), githubConst.getPostFolderName())) {
+//                postFolder = f;
+//                break;
+//            }
+//        }
+//        if (postFolder == null) {
+//            throw new RuntimeException("post folder not found");
+//        }
+//
+//        List<GithubArticle> list = new ArrayList<>();
+//
+//
+//
+//        String string = FileTool.readAsString(postFolder);
+//        Pattern pp = Pattern.compile(PROP_REGEX);
+//        Pattern bp = Pattern.compile(NAME_REGEX);
+//        String folder = blogFolder.getAbsolutePath();
+//        HtmlUtil.tagReplace(string, "a", (fullTag, headTag) -> {
+//            Matcher matcher = pp.matcher(fullTag);
+//            GithubArticle article = new GithubArticle();
+//            while (matcher.find()) {
+//                String name = matcher.group(1);
+//                String value = matcher.group(2);
+//                if (name == null) continue;
+//                if (Objects.equals(name, githubConst.getArticleIdProp())) {
+//                    article.blogId = value;
+//                } else if (Objects.equals(name, githubConst.getOriginIdProp())) {
+//                    article.originId = value;
+//                } else if (Objects.equals(name, githubConst.getPathProp())) {
+//                    article.path = folder + "/" + value;
+//                }
+//            }
+//            Matcher matcher2 = bp.matcher(fullTag);
+//            if (matcher2.find()) {
+//                article.blogName = matcher2.group(1);
+//            }
+//            article.ignore = headTag.contains(githubConst.getIgnoreProp());
+//            list.add(article);
+//            return fullTag;
+//        });
+//        return list;
+//    }
+
     class GithubArticle {
-        String blogName;
-        String blogId;
+        String title;
+        Date createTime;
+        String tags;
+        String permalink;
+        List<String> keywords = new ArrayList<>();
+        String rid;
         String originId;
-        String path;
-        Boolean ignore;
+        String topic;
+        Boolean isShadow;
+
         String content;
         Set<String> refIdSet = new HashSet<>();
+
+        String path;
+
     }
 }

@@ -99,7 +99,7 @@ public class ContentServiceImpl implements IContentService {
         LOGGER.debug("Enter getContents method");
         ContentVoExample example = new ContentVoExample();
         // 9331200 =  86400 * 108
-        example.setOrderByClause("(rank - rank * pow(0.9, 25 / pow((UNIX_TIMESTAMP(now()) - created) / 9331200, 0.2))) desc, created desc");
+        example.setOrderByClause("(`rank` - `rank` * pow(0.9, 25 / pow((UNIX_TIMESTAMP(now()) - created) / 9331200, 0.2))) desc, created desc");
         ContentVoExample.Criteria criteria = example.createCriteria().andTypeEqualTo(Types.ARTICLE.getType()).andStatusEqualTo(Types.PUBLISH.getType());
         if (showShadow == null || !showShadow) {
             criteria.andIsShadowEqualTo(false);

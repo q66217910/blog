@@ -32,8 +32,8 @@ public class HttpClientUtil {
     private static final Logger LOG = LoggerFactory.getLogger(HttpClientUtil.class);
 
     private static final String DEF_CHATSET = "UTF-8";
-    private static final int DEF_CONN_TIMEOUT = 30_000;
-    private static final int DEF_READ_TIMEOUT = 30_000;
+    private static final int DEF_CONN_TIMEOUT = 60_000;
+    private static final int DEF_READ_TIMEOUT = 60_000;
     private static final String DEF_CONTENT_TYPE = "Content-Type:application/json";
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
