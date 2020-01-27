@@ -60,6 +60,12 @@ public class IndexController extends BaseController {
     @Resource
     private ISiteService siteService;
 
+    @GetMapping(value = {"aliveDetect"})
+    @ResponseBody
+    public String hello() {
+        return "hello world";
+    }
+
     @GetMapping(value = {"robots.txt"})
     @ResponseBody
     public String robots(HttpServletRequest request, @RequestParam(value = "limit", defaultValue = "12") int limit) {
