@@ -16,6 +16,8 @@ public class GithubConst {
     private String name;
     private String postFolderName;
     private Integer authorId;
+    private String attachFolderName;
+    private String attachPath;
 
 
     private String attrTitle;
@@ -26,7 +28,6 @@ public class GithubConst {
     private String attrRid;
     private String attrOriginId;
     private String attrShadow;
-    private String attachPath;
 
 //    private String preUrl;
 //    private String indexName;
@@ -65,6 +66,14 @@ public class GithubConst {
 
     public String getPostFolderName() {
         return postFolderName;
+    }
+
+    public void setAttachFolderName(String attachFolderName) {
+        this.attachFolderName = attachFolderName;
+    }
+
+    public String getAttachFolderName() {
+        return attachFolderName;
     }
 
     public String getAttachPath() {

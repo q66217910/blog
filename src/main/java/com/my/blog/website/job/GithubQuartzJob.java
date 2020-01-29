@@ -171,7 +171,7 @@ public class GithubQuartzJob extends QuartzJobBean {
             githubArticles.forEach(article -> {
                 try {
                     ContentVo contentVo = contentVoMapper.selectByBlogNumberWithBLOBs(article.rid);
-                    resolveFileContent(article, cloneArticles);
+                    resolveFileContent(article, cloneArticles, file);
 
                     if (contentVo != null) {
                         updateContent(contentVo, article);
@@ -293,9 +293,11 @@ public class GithubQuartzJob extends QuartzJobBean {
         return "<ref=" + refId + ">";
     }
 
-    private void resolveFileContent(GithubArticle article, List<GithubArticle> possibleRefArticle) throws IOException {
+    private void resolveFileContent(GithubArticle article, List<GithubArticle> possibleRefArticle, File blogGitSourceFolder) throws IOException {
         File file = new File(article.path);
-        File parentFile = file.getParentFile();
+        File postFolder = new File(blogGitSourceFolder, githubConst.getPostFolderName());
+        File attachFolder = new File(blogGitSourceFolder, githubConst.getAttachFolderName());
+        String realAttachFolderPath = attachFolder.getCanonicalPath();
 
 
         String s1 = article.content;
@@ -310,7 +312,9 @@ public class GithubQuartzJob extends QuartzJobBean {
             String link = matcher.group(2);
             if (StringUtils.isBlank(link)) continue;
             if (StringUtil.isUrl(link)) continue;
-            File linkFile = new File(parentFile, link);
+            File linkFile = new File(postFolder, link);
+            linkFile = linkFile.getCanonicalFile();
+
             String refId = null;
             for (GithubArticle ref : possibleRefArticle) {
                 File file1 = new File(ref.path);
@@ -323,7 +327,12 @@ public class GithubQuartzJob extends QuartzJobBean {
                 refMap.put(link, refId);
                 continue;
             }
-            attachMap.put(link, "/" + githubConst.getAttachPath() + link);
+
+            String realLink = linkFile.getAbsolutePath();
+            if (realLink.startsWith(realAttachFolderPath)) {
+                String relatePath = realLink.substring(realAttachFolderPath.length());
+                attachMap.put(link, "/" + githubConst.getAttachPath() + relatePath);
+            }
         }
 
         refMap.forEach((key, value) -> {
@@ -335,7 +344,7 @@ public class GithubQuartzJob extends QuartzJobBean {
         attachMap.forEach((key, value) -> {
             String s = sb.toString();
             sb.delete(0, sb.length());
-            File attach = new File(parentFile, key);
+            File attach = new File(postFolder, key);
             try {
                 FileTool.copyFiles(attach, new File(TaleUtils.getFilePath() + value), true);
             } catch (IOException e) {
@@ -422,6 +431,7 @@ public class GithubQuartzJob extends QuartzJobBean {
         return analyzeContent(string);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private String[] splitFirst(String string, String separator) {
         int i = string.indexOf(separator);
         if (i != -1) {

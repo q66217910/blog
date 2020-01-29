@@ -468,7 +468,8 @@
       allow_comment = #{allowComment,jdbcType=BIT},
       allow_ping = #{allowPing,jdbcType=BIT},
       allow_feed = #{allowFeed,jdbcType=BIT},
-      content = #{content,jdbcType=LONGVARCHAR}
+      content = #{content,jdbcType=LONGVARCHAR},
+      is_shadow = #{isShadow, jdbcType=BIT}
     where cid = #{cid,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.my.blog.website.modal.Vo.ContentVo">
