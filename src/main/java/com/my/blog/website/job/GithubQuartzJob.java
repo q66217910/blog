@@ -509,9 +509,11 @@ public class GithubQuartzJob extends QuartzJobBean {
             }
         }
 
+		System.out.println("----------");
         System.out.println("title: " + article.title);
         System.out.println("createTime: " + article.createTime);
         System.out.println("rid: " + article.rid);
+		System.out.println("isShadow: " + article.isShadow);
         if (StringUtil.isBlank(article.title)
                 || article.createTime == null || StringUtil.isBlank(article.rid)) {
             LOG.warn("article info incomplete");
