@@ -46,8 +46,11 @@ public class GithubQuartzJob extends QuartzJobBean {
 
     private long lastExecuted = 0L;
     private boolean isExecuting = false;
+    private static final Object EXECUTE_INFO_LOCK = new Object();
+    private static final Object DOWNLOAD_LOCK = new Object();
     private SimpleDateFormat readDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private SimpleDateFormat slugDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
 
     @SuppressWarnings("UnusedReturnValue")
     private File unzipToFolder(File zipFile, File targetFolder) throws IOException {
@@ -82,37 +85,39 @@ public class GithubQuartzJob extends QuartzJobBean {
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private synchronized File downloadGitProject() throws IOException {
+    private File downloadGitProject() throws IOException {
         FileOutputStream fos = null;
         File file;
-        try {
+        synchronized (DOWNLOAD_LOCK) {
             try {
-                LOG.info("preheat git download url");
-                HttpClientUtil.doGetLoad(githubConst.getPreUrl(), null, null);
-            } catch (Exception ignore) {
-            }
-
-            LOG.info("download git repository");
-            HttpClientUtil.HttpResponseVo responseVo = HttpClientUtil.doGetLoad(githubConst.getUrl(), null, null);
-            InputStream inputStream = responseVo.getInputStream();
-            if (inputStream == null) throw new RuntimeException("DOWNLOAD FAILED");
-            String zipFileName = randomName() + ".zip";
-            file = new File(savePath + "/" + zipFileName);
-            if (!file.exists()) {
-                file.getParentFile().mkdirs();
-            } else {
-                file.delete();
-            }
-            file.createNewFile();
-
-            fos = new FileOutputStream(file);
-            FileTool.writeFromInputStream(fos, inputStream);
-            LOG.debug("SUCCESS DOWNLOAD GITHUB PROJECT");
-        } finally {
-            if (fos != null) {
                 try {
-                    fos.close();
-                } catch (IOException ignore) {
+                    LOG.info("preheat git download url");
+                    HttpClientUtil.doGetLoad(githubConst.getPreUrl(), null, null);
+                } catch (Exception ignore) {
+                }
+
+                LOG.info("download git repository");
+                HttpClientUtil.HttpResponseVo responseVo = HttpClientUtil.doGetLoad(githubConst.getUrl(), null, null);
+                InputStream inputStream = responseVo.getInputStream();
+                if (inputStream == null) throw new RuntimeException("DOWNLOAD FAILED");
+                String zipFileName = randomName() + ".zip";
+                file = new File(savePath + "/" + zipFileName);
+                if (!file.exists()) {
+                    file.getParentFile().mkdirs();
+                } else {
+                    file.delete();
+                }
+                file.createNewFile();
+
+                fos = new FileOutputStream(file);
+                FileTool.writeFromInputStream(fos, inputStream);
+                LOG.debug("SUCCESS DOWNLOAD GITHUB PROJECT");
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException ignore) {
+                    }
                 }
             }
         }
@@ -121,8 +126,8 @@ public class GithubQuartzJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) {
-        synchronized (GithubQuartzJob.class) {
-            if (isExecuting && System.currentTimeMillis() - lastExecuted < 5 * 60 * 1000) {
+        synchronized (EXECUTE_INFO_LOCK) {
+            if (isExecuting && System.currentTimeMillis() - lastExecuted < 6 * 60 * 1000) {
                 return;
             }
             lastExecuted = System.currentTimeMillis();
