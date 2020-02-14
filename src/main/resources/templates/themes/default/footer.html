@@ -4,7 +4,7 @@
 <footer class="footer bg-white">
     <div class="footer-social">
         <div class="footer-container clearfix">
-            <div class="social-list">
+            <div class="social-list" style="display: none;">
                 <th:block th:each="index:${commons.social()}">
                     <th:block th:if="${index.value}!=null and ${index.value}!=''">
                         <th:block th:switch="${index.key}">
@@ -34,10 +34,8 @@
         <div class="footer-container">
             <div class="meta-item meta-copyright">
                 <div class="meta-copyright-info">
-                    <div class="info-text">
-                        <a href="http://www.uetty.com" target="_blank" style="display: block;margin: 0 auto;" class="info-logo">
-                            <img style="display: block;margin: 0 auto;" th:src="@{/user/img/logo.png}" th:alt="${commons.site_title()}"/>
-                        </a>
+                    <div class="info-text" style="width: 100%; text-align: center; color: #767676;">
+                        Power by Tale | Copyright (C) 2019 @ 闽ICP备19026798号 | 托管于阿里云
                     </div>
                 </div>
             </div>
