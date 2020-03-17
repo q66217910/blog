@@ -111,7 +111,6 @@ public class SettingController extends BaseController {
         try {
             bk_path = new File(backupPath, bk_path).getCanonicalFile().getAbsolutePath();
             if (!bk_path.startsWith(backupPath)) {
-                System.out.println("非法路径： " + bk_path + "\n" + backupPath);
                 LOGGER.error("非法文件路径： {}", bk_path);
                 String msg = "非法路径";
                 return RestResponseBo.fail(msg);
