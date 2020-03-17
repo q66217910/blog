@@ -7,8 +7,8 @@
     <!-- 常量引用 -->
     <properties>
         <!--<property name="LOG_HOME">/opt/logs/api-logs/</property>-->
-        <property name="LOG_HOME">./logs</property>
-        <property name="FORMAT">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</property>
+        <property name="LOG_HOME">/data/log/blog/</property>
+        <property name="FORMAT">%d{yyyy-MM-dd HH:mm:ss} [%.8t] %C{1.}.%M:%L [%p] - %m%n</property>
     </properties>
 
     <!-- appender用于接收各种日志 -->
@@ -47,7 +47,7 @@
 
         <!-- 对包进行更详细的配置 -->
         <!-- additivity表示是否追加,防止重复,因为root已经接收过一次了 -->
-        <logger name="com.my.blog.website.dao" level="DEBUG" additivity="true">
+        <logger name="com.my.blog.website.dao" level="DEBUG" additivity="false">
             <appender-ref ref="db_log"/>
         </logger>
         <logger name="com.my.blog.website.controller" level="DEBUG" additivity="false">
