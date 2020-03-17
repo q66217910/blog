@@ -14,12 +14,14 @@ import com.my.blog.website.utils.GsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,9 @@ import java.util.Map;
 @RequestMapping("${server.admin.prefix}/setting")
 public class SettingController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingController.class);
+
+    @Value("${file.path}/backup/")
+    private String backupPath;
 
     @Resource
     private IOptionService optionService;
@@ -104,6 +109,12 @@ public class SettingController extends BaseController {
             return RestResponseBo.fail("请确认信息输入完整");
         }
         try {
+            bk_path = new File(backupPath, bk_path).getCanonicalFile().getCanonicalPath();
+            if (!bk_path.startsWith(backupPath)) {
+                String msg = "非法路径";
+                return RestResponseBo.fail(msg);
+            }
+
             BackResponseBo backResponse = siteService.backup(bk_type, bk_path, "yyyyMMddHHmm");
             logService.insertLog(LogActions.SYS_BACKUP.getAction(), null, request.getRemoteAddr(), this.getUid(request));
             return RestResponseBo.ok(backResponse);
