@@ -37,6 +37,9 @@
         <logger name="com.my.blog.website.controller" level="DEBUG" additivity="true"/>
         <logger name="com.my.blog.website.service" level="DEBUG" additivity="true"/>
         <!-- mybatis loggers -->
+        <logger name="org.mybatis.spring" level="DEBUG" additivity="${sys:log4j.dblog.additivity:-false}">
+            <appender-ref ref="db_log"/>
+        </logger>
         <logger name="com.ibatis" level="DEBUG" additivity="${sys:log4j.dblog.additivity:-false}">
             <appender-ref ref="db_log"/>
         </logger>
