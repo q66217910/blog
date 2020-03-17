@@ -34,7 +34,7 @@ import java.util.Map;
 public class SettingController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(SettingController.class);
 
-    @Value("${" + WebConst.FILE_PATH_KEY + "}/backup/")
+    @Value("${" + WebConst.FILE_PATH_KEY + "}/backup")
     private String backupPath;
 
     @Resource
