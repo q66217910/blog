@@ -134,9 +134,9 @@ public class MetaServiceImpl implements IMetaService {
     @Override
     public void saveMetas(Integer cid, String names, String type) {
         if (null == cid) {
-            throw new TipException("项目关联id不能为空");
+            throw new TipException("内容id不能为空");
         }
-        if (StringUtils.isNotBlank(names) && StringUtils.isNotBlank(type)) {
+        if (Types.fromType(type) != null) {
             String[] nameArr = StringUtils.split(names, ",");
             List<String> nameList = new ArrayList<>(Arrays.asList(nameArr));
             updateTag(cid, nameList, type);

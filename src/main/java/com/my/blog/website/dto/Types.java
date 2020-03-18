@@ -1,5 +1,7 @@
 package com.my.blog.website.dto;
 
+import java.util.Objects;
+
 public enum Types {
     TAG("tag"),
     CATEGORY("category"),
@@ -30,11 +32,16 @@ public enum Types {
         return type;
     }
 
-    public void setType(java.lang.String type) {
+    Types(java.lang.String type) {
         this.type = type;
     }
 
-    Types(java.lang.String type) {
-        this.type = type;
+    public static Types fromType(String type) {
+        for (Types t : values()) {
+            if (Objects.equals(t.type, type)) {
+                return t;
+            }
+        }
+        return null;
     }
 }
