@@ -494,10 +494,10 @@ public class GithubQuartzJob extends QuartzJobBean {
                 } else if (Objects.equals(key, githubConst.getAttrPermalink())) {
                     article.permalink = value;
                 } else if (Objects.equals(key, githubConst.getAttrKeywords())) {
-                    String[] keywords = value.split(",");
+                    String[] keywords = value.toUpperCase().split(",");
                     for (String keyword : keywords) {
                         if (StringUtil.isNotBlank(keyword)) {
-                            article.keywords.add(keyword.trim().toUpperCase());
+                            article.keywords.add(keyword.trim());
                         }
                     }
                 } else if (Objects.equals(key, githubConst.getAttrRid())) {
@@ -510,11 +510,11 @@ public class GithubQuartzJob extends QuartzJobBean {
             }
         }
 
-		System.out.println("----------");
-        System.out.println("title: " + article.title);
-        System.out.println("createTime: " + article.createTime);
-        System.out.println("rid: " + article.rid);
-		System.out.println("isShadow: " + article.isShadow);
+		LOG.debug("----------");
+        LOG.debug("title: " + article.title);
+        LOG.debug("createTime: " + article.createTime);
+        LOG.debug("rid: " + article.rid);
+        LOG.debug("isShadow: " + article.isShadow);
         if (StringUtil.isBlank(article.title)
                 || article.createTime == null || StringUtil.isBlank(article.rid)) {
             LOG.warn("article info incomplete");

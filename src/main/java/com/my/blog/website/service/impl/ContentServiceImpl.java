@@ -152,13 +152,6 @@ public class ContentServiceImpl implements IContentService {
         contentVo.setCategories(categories.toString());
     }
 
-//    @Override
-//    public void updateContentByCid(ContentVo contentVo) {
-//        if (null != contentVo && null != contentVo.getCid()) {
-//            contentDao.updateByPrimaryKeySelective(contentVo);
-//        }
-//    }
-
     @Override
     public PageInfo<ContentVo> getArticles(Integer mid, int page, int limit) {
         int total = metaDao.countWithSql(mid);

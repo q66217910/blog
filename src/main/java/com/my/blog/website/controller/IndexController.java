@@ -103,7 +103,7 @@ public class IndexController extends BaseController {
         p = p < 0 || p > WebConst.MAX_PAGE ? 1 : p;
         String path = getPath(request);
         System.out.println(path);
-        if (path != null && path.startsWith("/shadow")) {
+        if (path != null && path.startsWith("/shadow/")) {
             showShadow = true;
         }
         PageInfo<ContentVo> articles = contentService.getContents(p, limit, showShadow);

@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -110,9 +107,6 @@ public class MetaServiceImpl implements IMetaService {
     @Override
     public void saveMeta(String type, String name, Integer mid) {
         if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(name)) {
-            if (Types.CATEGORY.getType().equals(type) || Types.TAG.getType().equals(type)) {
-                name = StringUtil.toUpperCase(name);
-            }
 
             MetaVoExample metaVoExample = new MetaVoExample();
             metaVoExample.createCriteria().andTypeEqualTo(type).andNameEqualTo(name);
@@ -143,13 +137,39 @@ public class MetaServiceImpl implements IMetaService {
             throw new TipException("项目关联id不能为空");
         }
         if (StringUtils.isNotBlank(names) && StringUtils.isNotBlank(type)) {
-            if (Types.CATEGORY.getType().equals(type) || Types.TAG.getType().equals(type)) {
-                names = StringUtil.toLowerCase(names);
-            }
             String[] nameArr = StringUtils.split(names, ",");
-            for (String name : nameArr) {
-                this.saveOrUpdate(cid, name.trim(), type);
+            List<String> nameList = new ArrayList<>(Arrays.asList(nameArr));
+            updateTag(cid, nameList, type);
+        }
+    }
+
+    private void updateTag(Integer cid, List<String> names, String type) {
+        List<MetaVo> metas = getMetas(cid);
+        metas = metas.stream().filter(meta -> Objects.equals(type, meta.getType())).collect(Collectors.toList());
+
+        if (Types.CATEGORY.getType().equals(type)) {
+            if (names.size() > 1) {
+                String category = names.get(0);
+                names = new ArrayList<>();
+                names.add(category);
             }
+        }
+        for (int i = 0; i < names.size(); i++) {
+            String name = names.get(i);
+            for (int j = 0; j < metas.size(); j++) {
+                if (Objects.equals(metas.get(j).getName(), name)) {
+                    names.remove(i--);
+                    metas.remove(j);
+                    break;
+                }
+            }
+        }
+
+        for (MetaVo meta : metas) {
+            relationshipService.deleteById(cid, meta.getMid());
+        }
+        for (String name : names) {
+            saveOrUpdate(cid, name, type);
         }
     }
 
@@ -160,11 +180,11 @@ public class MetaServiceImpl implements IMetaService {
 
         int mid;
         MetaVo metas;
-        if (metaVos.size() == 1) {
+        if (metaVos.size() > 1) {
+            throw new TipException("查询到多条数据");
+        } else if (metaVos.size() == 1) {
             metas = metaVos.get(0);
             mid = metas.getMid();
-        } else if (metaVos.size() > 1) {
-            throw new TipException("查询到多条数据");
         } else {
             metas = new MetaVo();
             metas.setSlug(name);
@@ -184,7 +204,6 @@ public class MetaServiceImpl implements IMetaService {
         }
     }
 
-
     private String reMeta(String name, String metas) {
         String[] ms = StringUtils.split(metas, ",");
         StringBuilder sbuf = new StringBuilder();
@@ -202,10 +221,6 @@ public class MetaServiceImpl implements IMetaService {
     @Override
     public void saveMeta(MetaVo metas) {
         if (null != metas) {
-            if (Types.CATEGORY.getType().equals(metas.getType()) || Types.TAG.getType().equals(metas.getType())) {
-                metas.setName(StringUtil.toUpperCase(metas.getName()));
-                metas.setSlug(StringUtil.toUpperCase(metas.getSlug()));
-            }
             metaDao.insertSelective(metas);
         }
     }
@@ -213,10 +228,6 @@ public class MetaServiceImpl implements IMetaService {
     @Override
     public void update(MetaVo metas) {
         if (null != metas && null != metas.getMid()) {
-            if (Types.CATEGORY.getType().equals(metas.getType()) || Types.TAG.getType().equals(metas.getType())) {
-                metas.setName(StringUtil.toUpperCase(metas.getName()));
-                metas.setSlug(StringUtil.toUpperCase(metas.getSlug()));
-            }
             metaDao.updateByPrimaryKeySelective(metas);
         }
     }
