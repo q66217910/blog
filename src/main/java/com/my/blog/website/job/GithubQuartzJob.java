@@ -514,6 +514,8 @@ public class GithubQuartzJob extends QuartzJobBean {
         LOG.debug("title: " + article.title);
         LOG.debug("createTime: " + article.createTime);
         LOG.debug("rid: " + article.rid);
+        LOG.debug("category: " + article.tags);
+        LOG.debug("keywords: " + article.keywords);
         LOG.debug("isShadow: " + article.isShadow);
         if (StringUtil.isBlank(article.title)
                 || article.createTime == null || StringUtil.isBlank(article.rid)) {

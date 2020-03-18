@@ -146,8 +146,7 @@ public class MetaServiceImpl implements IMetaService {
     private void updateTag(Integer cid, List<String> names, String type) {
         List<MetaVo> metas = getMetas(cid);
         metas = metas.stream().filter(meta -> Objects.equals(type, meta.getType())).collect(Collectors.toList());
-        LOGGER.debug("cid: {}, type: {}, names: {}", cid, type, names);
-        LOGGER.debug("original metas: {}", metas.stream().map(MetaVo::getName).collect(Collectors.toList()));
+        LOGGER.debug("type: {}, original metas: {}", type, metas.stream().map(MetaVo::getName).collect(Collectors.toList()));
 
         if (Types.CATEGORY.getType().equals(type)) {
             if (names.size() > 1) {
