@@ -7,6 +7,7 @@ import com.my.blog.website.dto.Types;
 import com.my.blog.website.exception.TipException;
 import com.my.blog.website.modal.Bo.RestResponseBo;
 import com.my.blog.website.service.IMetaService;
+import com.my.blog.website.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -48,7 +49,7 @@ public class CategoryController extends BaseController {
     @Transactional(rollbackFor = TipException.class)
     public RestResponseBo saveCategory(@RequestParam String cname, @RequestParam Integer mid) {
         try {
-            metasService.saveMeta(Types.CATEGORY.getType(),cname,mid);
+            metasService.saveMeta(Types.CATEGORY.getType(), cname, mid);
         } catch (Exception e) {
             String msg = "分类保存失败";
             if (e instanceof TipException) {

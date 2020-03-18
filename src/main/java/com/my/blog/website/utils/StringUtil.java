@@ -92,4 +92,12 @@ public class StringUtil {
 		}
 		return str;
 	}
+
+	public static String toUpperCase(String str) {
+		return str == null ? null : str.toUpperCase();
+	}
+
+	public static String toLowerCase(String str) {
+		return str == null ? null : str.toLowerCase();
+	}
 }

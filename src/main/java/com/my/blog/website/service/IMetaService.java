@@ -20,13 +20,6 @@ public interface IMetaService {
     MetaDto getMeta(String type, String name);
 
     /**
-     * 根据文章id获取项目个数
-     * @param mid
-     * @return
-     */
-    Integer countMeta(Integer mid);
-
-    /**
      * 根据类型查询项目列表
      * @param types
      * @return

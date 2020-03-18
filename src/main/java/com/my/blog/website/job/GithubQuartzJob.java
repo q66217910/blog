@@ -143,10 +143,6 @@ public class GithubQuartzJob extends QuartzJobBean {
             unzipToFolder(zipFile, file);
 
             List<GithubArticle> githubArticles = readGithubArticles(file);
-            if (githubArticles == null) {
-                LOG.warn("github article not found");
-                return;
-            }
 
             // changed id
             List<GithubArticle> changeList = new ArrayList<>(githubArticles).stream().filter(article -> StringUtil.isNotBlank(article.originId)).collect(Collectors.toList());
@@ -494,14 +490,14 @@ public class GithubQuartzJob extends QuartzJobBean {
                 } else if (Objects.equals(key, githubConst.getAttrDate())) {
                     article.createTime = readDateFormat.parse(value);
                 } else if (Objects.equals(key, githubConst.getAttrTag())) {
-                    article.tags = value;
+                    article.tags = value.toUpperCase();
                 } else if (Objects.equals(key, githubConst.getAttrPermalink())) {
                     article.permalink = value;
                 } else if (Objects.equals(key, githubConst.getAttrKeywords())) {
                     String[] keywords = value.split(",");
                     for (String keyword : keywords) {
                         if (StringUtil.isNotBlank(keyword)) {
-                            article.keywords.add(keyword.trim());
+                            article.keywords.add(keyword.trim().toUpperCase());
                         }
                     }
                 } else if (Objects.equals(key, githubConst.getAttrRid())) {

@@ -10,6 +10,7 @@ import com.my.blog.website.service.IMetaService;
 import com.my.blog.website.service.IRelationshipService;
 import com.my.blog.website.dao.MetaVoMapper;
 import com.my.blog.website.service.IContentService;
+import com.my.blog.website.utils.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +48,6 @@ public class MetaServiceImpl implements IMetaService {
             return metaDao.selectDtoByNameAndType(name, type);
         }
         return null;
-    }
-
-    @Override
-    public Integer countMeta(Integer mid) {
-        return metaDao.countWithSql(mid);
     }
 
     @Override
@@ -114,6 +110,10 @@ public class MetaServiceImpl implements IMetaService {
     @Override
     public void saveMeta(String type, String name, Integer mid) {
         if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(name)) {
+            if (Types.CATEGORY.getType().equals(type) || Types.TAG.getType().equals(type)) {
+                name = StringUtil.toUpperCase(name);
+            }
+
             MetaVoExample metaVoExample = new MetaVoExample();
             metaVoExample.createCriteria().andTypeEqualTo(type).andNameEqualTo(name);
             List<MetaVo> metaVos = metaDao.selectByExample(metaVoExample);
@@ -143,6 +143,9 @@ public class MetaServiceImpl implements IMetaService {
             throw new TipException("项目关联id不能为空");
         }
         if (StringUtils.isNotBlank(names) && StringUtils.isNotBlank(type)) {
+            if (Types.CATEGORY.getType().equals(type) || Types.TAG.getType().equals(type)) {
+                names = StringUtil.toLowerCase(names);
+            }
             String[] nameArr = StringUtils.split(names, ",");
             for (String name : nameArr) {
                 this.saveOrUpdate(cid, name.trim(), type);
@@ -199,6 +202,10 @@ public class MetaServiceImpl implements IMetaService {
     @Override
     public void saveMeta(MetaVo metas) {
         if (null != metas) {
+            if (Types.CATEGORY.getType().equals(metas.getType()) || Types.TAG.getType().equals(metas.getType())) {
+                metas.setName(StringUtil.toUpperCase(metas.getName()));
+                metas.setSlug(StringUtil.toUpperCase(metas.getSlug()));
+            }
             metaDao.insertSelective(metas);
         }
     }
@@ -206,6 +213,10 @@ public class MetaServiceImpl implements IMetaService {
     @Override
     public void update(MetaVo metas) {
         if (null != metas && null != metas.getMid()) {
+            if (Types.CATEGORY.getType().equals(metas.getType()) || Types.TAG.getType().equals(metas.getType())) {
+                metas.setName(StringUtil.toUpperCase(metas.getName()));
+                metas.setSlug(StringUtil.toUpperCase(metas.getSlug()));
+            }
             metaDao.updateByPrimaryKeySelective(metas);
         }
     }
