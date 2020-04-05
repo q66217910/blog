@@ -121,12 +121,12 @@
     $("#dropzone").dropzone({
         paramName: "file",
         url: adminPrefix + "/attach/upload",
-        maxFilesize: 1,
+        maxFilesize: 100,
         init: function () {
             this.on("success", function (file, msg) {
                 console.log(file);
                 if (msg.success !== true) {
-                    tale.alertError('上传文件大于1M');
+                    tale.alertError('上传文件大于100M');
                 }
                 setTimeout(function () {
                     window.location.reload();
