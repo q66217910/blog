@@ -78,6 +78,15 @@ public class IndexController extends BaseController {
     }
 
     /**
+     * 其他项目测试微信公众号的临时接口
+     */
+    @GetMapping(value = {"WW_verify_XROAbtGSUzc2foqo.txt"})
+    @ResponseBody
+    public String vxVerify() {
+        return "XROAbtGSUzc2foqo";
+    }
+
+    /**
      * 首页
      *
      * @return
