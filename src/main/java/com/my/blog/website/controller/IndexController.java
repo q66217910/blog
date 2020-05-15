@@ -66,26 +66,6 @@ public class IndexController extends BaseController {
         return "hello world";
     }
 
-    @GetMapping(value = {"robots.txt"})
-    @ResponseBody
-    public String robots(HttpServletRequest request, @RequestParam(value = "limit", defaultValue = "12") int limit) {
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("static/robots.txt");
-        try {
-            return FileTool.readAsString(resourceAsStream);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    /**
-     * 其他项目测试微信公众号的临时接口
-     */
-    @GetMapping(value = {"WW_verify_XROAbtGSUzc2foqo.txt"})
-    @ResponseBody
-    public String vxVerify() {
-        return "XROAbtGSUzc2foqo";
-    }
-
     /**
      * 首页
      *
