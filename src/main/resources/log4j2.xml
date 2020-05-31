@@ -7,7 +7,7 @@
     <!-- 常量引用 -->
     <properties>
         <!--<property name="LOG_HOME">/opt/logs/api-logs/</property>-->
-        <property name="LOG_HOME">/data/log/blog/</property>
+        <property name="LOG_HOME">/data/log/koala-blog/</property>
         <property name="FORMAT">%d{yyyy-MM-dd HH:mm:ss} [%.8t] %C{1.}.%M:%L [%p] - %m%n</property>
     </properties>
 
